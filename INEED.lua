@@ -639,7 +639,7 @@ function INEED.command(msg)
 	end
 end
 function INEED.PrintHelp()
-	INEED.Print(INEED_MSG_ADDONNAME.." by "..INEED_MSG_AUTHOR);
+	INEED.Print(INEED_MSG_ADDONNAME.." ("..INEED_MSG_VERSION..") by "..INEED_MSG_AUTHOR);
 	for cmd, info in pairs(INEED.CommandList) do
 		INEED.Print(string.format("%s %s %s -> %s",
 			SLASH_INEED1, cmd, info.help[1], info.help[2]));
