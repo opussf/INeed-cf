@@ -19,6 +19,15 @@ INEED_data = {}
 INEED_currency = {}
 INEED_account = {}
 
+INEED.bindTypes = {
+	[ITEM_SOULBOUND] = "Bound",
+	[ITEM_BIND_ON_PICKUP] = "Bound",
+}
+INEED.scanTip = CreateFrame( "GameTooltip", "INEEDTip", UIParent, "GameTooltipTemplate" )
+INEED.scanTip2 = _G["INEEDTipTextLeft2"]
+INEED.scanTip3 = _G["INEEDTipTextLeft3"]
+INEED.scanTip4 = _G["INEEDTipTextLeft4"]
+
 function INEED.Print( msg, showName)
 	-- print to the chat frame
 	-- set showName to false to suppress the addon name printing
@@ -427,8 +436,25 @@ function INEED.clearData()
 	end
 end
 function INEED.hookSetItem(tooltip, ...)  -- is passed the tooltip frame as a table
-	local item, link = tooltip:GetItem(); -- name, link
+	local item, link = tooltip:GetItem()  -- name, link
 	local itemID = INEED.getItemIdFromLink( link )
+
+--[[
+	local tooltipName = tooltip:GetName()
+	local tooltipLine2 = _G[tooltipName.."TextLeft2"]
+	local tooltipLine3 = _G[tooltipName.."TextLeft3"]
+	local tooltipLine4 = _G[tooltipName.."TextLeft4"]
+	local BindTypes = {
+		[ITEM_SOULBOUND] = "Bound",
+		[ITEM_BIND_ON_PICKUP] = "Bound",
+	}
+
+
+	INEED.Print( "tooltip:name = "..( tooltipName or "unknown" ).." "..
+			( ( BindTypes[tooltipLine2:GetText()] or BindTypes[tooltipLine3:GetText()] or BindTypes[tooltipLine4:GetText()] ) and "isBound" or "isNotBound" ) )
+]]
+	-- local ScanTip2 = _G["AppraiserTipTextLeft2"]
+	--.." "..ITEM_SOULBOUND.." "..ITEM_BIND_ON_PICKUP )
 	-- INEED.Print("item: "..(item or "nil").." ID: "..itemID)
 
 	if itemID and INEED_data[itemID] then
@@ -629,12 +655,12 @@ function INEED.showList( searchTerm )
 				if ( searchTerm == "me" and name == INEED.name ) or
 						( searchTerm == "realm" and realm == INEED.realm ) or
 						( searchTerm == "all" ) then
-					table.insert( updatedItems, { ["itemID"] = itemID, ["added"] = data.added, ["updated"] = (data.updated or data.added) } )
+					table.insert( updatedItems, { ["itemID"] = itemID, ["added"] = data.added, ["updated"] = (data.updated or data.added or 1) } )
 				end
 			end
 		end
 	end
-	table.sort( updatedItems, function(a,b) return a.updated<b.updated end ) -- sort by updated
+	table.sort( updatedItems, function(a,b)	return a.updated<b.updated end ) -- sort by updated
 	for _, item in pairs( updatedItems ) do
 		itemID = item.itemID
 		for realm, _ in pairs( INEED_data[itemID] ) do
@@ -664,6 +690,13 @@ function INEED.showList( searchTerm )
 		INEED.Print( string.format( "%i/%i x %s", cData.total, cData.needed, currencyLink ) )
 	end
 end
+function INEED.itemIsSoulbound( itemLink )
+	-- return 1 or nil to reflect if the item is BOP or bound
+	INEED.scanTip:SetOwner(UIParent, "ANCHOR_NONE")
+	INEED.scanTip:ClearLines()
+	INEED.scanTip:SetHyperlink( itemLink )
+	return INEED.bindTypes[INEED.scanTip2:GetText()] or INEED.bindTypes[INEED.scanTip3:GetText()] or INEED.bindTypes[INEED.scanTip4:GetText()]
+end
 function INEED.showFulfillList()
 	-- returns number of items you can fulfill, or nil if none
     youHaveTotal = nil
@@ -672,20 +705,28 @@ function INEED.showFulfillList()
 			if realm == INEED.realm then  -- this realm
 				local names = {}
 				local itemLink = nil
+				local isSoulBound = nil
 				for name, data in pairs(INEED_data[itemID][realm]) do
 					if (name ~= INEED.name) and (data.faction and data.faction == INEED.faction) then -- not you and right faction
-						local youHaveNum = GetItemCount( itemID, true )
-						local neededValue = data.needed - data.total - ( data.inMail or 0 )
-						if (youHaveNum > 0) and (neededValue > 0) then
-							youHaveTotal = youHaveTotal and youHaveTotal + youHaveNum or youHaveNum
-							itemLink = select( 2, GetItemInfo( itemID ) ) or "item:"..itemID
-							tinsert( names, name.." - "..neededValue )
-							--INEED.Print(string.format("%s x %i is needed by %s. You have %i", itemLink,
-							--		data.needed - data.total,  name, youHaveNum ) )
+						itemLink = select( 2, GetItemInfo( itemID ) )
+						isSoulBound = INEED.itemIsSoulbound( itemLink )
+						--INEED.Print( "Looking at "..itemLink..". Which is "..( INEED.itemIsSoulbound( itemLink ) and "soulbound" or "not soulbound" ) )
+						if not isSoulBound then
+							local youHaveNum = GetItemCount( itemID, true )
+							local neededValue = data.needed - data.total - ( data.inMail or 0 )
+							if (youHaveNum > 0) and (neededValue > 0) then
+								youHaveTotal = youHaveTotal and youHaveTotal + youHaveNum or youHaveNum
+								itemLink = itemLink or "item:"..itemID
+								tinsert( names, name.." - "..neededValue )
+								--INEED.Print(string.format("%s x %i is needed by %s. You have %i", itemLink,
+								--		data.needed - data.total,  name, youHaveNum ) )
+							else
+								itemLink = nil  -- you don't have any, clear the itemLink
+							end
 						end
 					end
 				end
-				if itemLink then
+				if itemLink and not isSoulBound then
 					INEED.Print( string.format( "%s -- %s", itemLink, table.concat( names, ", " ) ) )
 				end
 			end
