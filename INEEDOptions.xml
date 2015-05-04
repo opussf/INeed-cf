@@ -1,0 +1,193 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+
+	<CheckButton name="INEEDOptionsCheckButtonTemplate" inherits="OptionsCheckButtonTemplate" virtual="true">
+		<Scripts>
+			<OnEnter>
+				GameTooltip:SetOwner(self, "ANCHOR_LEFT");
+				GameTooltip:SetText(self.tooltip);
+			</OnEnter>
+			<OnLeave>GameTooltip:Hide();</OnLeave>
+		</Scripts>
+	</CheckButton>
+
+	<Frame name="INEEDOptionsFrame">
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString name="$parent_Title" inherits="GameFontNormalLarge">
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset><AbsDimension x="16" y="-16"/></Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<CheckButton name="$parent_ShowProgress" inherits="INEEDOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_Title" relativePoint="BOTTOMLEFT">
+						<Offset><AbsDimension x="0" y="-10"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>self.tooltip = "Show progress in Alert pane";</OnLoad>
+					<OnShow>INEED.OptionsPanel_CheckButton_OnLoad(self,"showProgress","Show progress in the Alert pane");</OnShow>
+					<PostClick>INEED.OptionsPanel_CheckButton_PostClick(self,"showProgress")</PostClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parent_ShowGlobalProgress" inherits="INEEDOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ShowProgress" relativePoint="BOTTOMLEFT">
+						<Offset><AbsDimension x="0" y="0"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>self.tooltip = "Show progress if others need an item";</OnLoad>
+					<OnShow>INEED.OptionsPanel_CheckButton_OnLoad(self,"showGlobal","Show progress if others need an item");</OnShow>
+					<PostClick>INEED.OptionsPanel_CheckButton_PostClick(self,"showGlobal")</PostClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parent_PrintProgress" inherits="INEEDOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ShowGlobalProgress" relativePoint="BOTTOMLEFT">
+						<Offset><AbsDimension x="0" y="0"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>self.tooltip = "Print progress in general chat frame";</OnLoad>
+					<OnShow>INEED.OptionsPanel_CheckButton_OnLoad(self,"printProgress","Print progress in general chat frame");</OnShow>
+					<PostClick>INEED.OptionsPanel_CheckButton_PostClick(self,"printProgress")</PostClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parent_IncludeChange" inherits="INEEDOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_PrintProgress" relativePoint="BOTTOMLEFT">
+						<Offset><AbsDimension x="30" y="0"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>self.tooltip = "Include amount changed when annoucing progress";</OnLoad>
+					<OnShow>INEED.OptionsPanel_CheckButton_OnLoad(self,"includeChange","Include amount changed with progress");</OnShow>
+					<PostClick>INEED.OptionsPanel_CheckButton_PostClick(self,"includeChange")</PostClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parent_AlertOnSuccess" inherits="INEEDOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_PrintProgress" relativePoint="BOTTOMLEFT">
+						<Offset><AbsDimension x="0" y="-30"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>self.tooltip = "Show alert on success"</OnLoad>
+					<OnShow>INEED.OptionsPanel_CheckButton_OnLoad( self, "showSuccess", "Show alert on Success" )</OnShow>
+					<PostClick>INEED.OptionsPanel_CheckButton_PostClick( self, "showSuccess" )</PostClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parent_PrintSuccess" inherits="INEEDOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_AlertOnSuccess" relativePoint="BOTTOMLEFT">
+						<Offset><AbsDimension x="0" y="0"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>self.tooltip = "Print success in general chat frame";</OnLoad>
+					<OnShow>INEED.OptionsPanel_CheckButton_OnLoad(self,"printSuccess","Print success in general chat frame");</OnShow>
+					<PostClick>INEED.OptionsPanel_CheckButton_PostClick(self,"printSuccess")</PostClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parent_AudibleAlert" inherits="INEEDOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_PrintSuccess" relativePoint="BOTTOMLEFT">
+						<Offset><AbsDimension x="0" y="-10"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>self.tooltip = "Make a noise on success"</OnLoad>
+					<OnShow>INEED.OptionsPanel_CheckButton_OnLoad( self, "audibleSuccess", "Play alert on Success" )</OnShow>
+					<PostClick>INEED.OptionsPanel_CheckButton_PostClick( self, "audibleSuccess" )</PostClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parent_DoEmote" inherits="INEEDOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_AudibleAlert" relativePoint="BOTTOMLEFT">
+						<Offset><AbsDimension x="30" y="-5"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>self.tooltip = "Perform an emote on success"</OnLoad>
+					<OnShow>INEED.OptionsPanel_CheckButton_OnLoad( self, "doEmote", "Use Emote:" )</OnShow>
+					<PostClick>INEED.OptionsPanel_CheckButton_PostClick( self, "doEmote" )</PostClick>
+				</Scripts>
+			</CheckButton>
+			<EditBox name="$parent_DoEmoteEditBox" inherits="InputBoxTemplate">
+				<Size x="100" y="16"/>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent_DoEmote" relativePoint="RIGHT">
+						<Offset x="100" y="0" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>self:SetAutoFocus( false )</OnLoad>
+					<OnShow>INEED.OptionsPanel_EditBox_OnLoad( self, "emote" )</OnShow>
+					<OnTextChanged>INEED.OptionsPanel_EditBox_TextChanged( self, "emote" )</OnTextChanged>
+				</Scripts>
+			</EditBox>
+			<Button name="$parent_TestEmoteButton" inherits="UIPanelButtonTemplate" text="Test Alert">
+				<Size>
+					<AbsDimension x="120" y="24"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent_DoEmoteEditBox" relativePoint="RIGHT" >
+						<Offset>
+							<AbsDimension x="10" y="0" />
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						local emote = _G[self:GetParent():GetName() .."_DoEmoteEditBox"]:GetText();
+						local sound = _G[self:GetParent():GetName() .."_PlaySoundEditBox"]:GetText();
+						if _G[self:GetParent():GetName() .."_DoEmote"]:GetChecked() then
+							DoEmote( emote )
+						end
+						if _G[self:GetParent():GetName() .."_PlaySound"]:GetChecked() then
+							PlaySoundFile( sound )
+						end
+					</OnClick>
+				</Scripts>
+			</Button>
+			<CheckButton name="$parent_PlaySound" inherits="INEEDOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_DoEmote" relativePoint="BOTTOMLEFT">
+						<Offset><AbsDimension x="0" y="-5"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>self.tooltip = "Play a sound file on success"</OnLoad>
+					<OnShow>INEED.OptionsPanel_CheckButton_OnLoad( self, "playSoundFile", "Play Sound:" )</OnShow>
+				</Scripts>
+			</CheckButton>
+			<EditBox name="$parent_PlaySoundEditBox" inherits="InputBoxTemplate">
+				<Size x="350" y="16"/>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent_PlaySound" relativePoint="RIGHT">
+						<Offset x="100" y="0" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>self:SetAutoFocus( false )</OnLoad>
+					<OnShow>INEED.OptionsPanel_EditBox_OnLoad( self, "soundFile" )</OnShow>
+					<OnTextChanged>INEED.OptionsPanel_EditBox_TextChanged( self, "soundFile" )</OnTextChanged>
+				</Scripts>
+			</EditBox>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				INEED.OptionsPanel_OnLoad(self)
+			</OnLoad>
+		</Scripts>
+	</Frame>
+</Ui>

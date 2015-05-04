@@ -1,0 +1,51 @@
+-----------------------------------------
+INEED command reference
+-----------------------------------------
+
+Slash command:
+/ineed  or  /in
+
+Commands:
+
+	help
+
+		Show help info
+
+	list [ me | realm | all ]
+
+		Shows a list of needed items for yourself (me), the realm, or all.  Defaults to "me".
+
+	account [ amount ]
+
+		Sets an amount of money (gold) that can be used to auto-purchase needed items from merchants.
+		Defaults to showing current balance.
+
+		amount can be in one of these formats:
+			# - total amount -- (# gold * 10000) + (# silver * 100) + copper
+				12345 = 1g 23s 45c
+
+			#g #s #c - sets the amount to the given amount
+
+			Prepend a '+' to add an amount.
+				+12345 - adds 1g 23s 45c to the account
+				+5g 15s - adds 5g 15s to the account
+
+	options
+
+		Opens the options panel
+
+	remove <name>-<realm>
+
+		removes all records for the given character - in case you delete the character
+
+	itemLink [ quantity ]
+
+		Adds an item for tracking.  Quantity defaults to 1, use 0 to remove tracking of item.
+
+		itemLink can be:
+			*) A link, from Shift-Clicking an item
+			*) item:#, where # is the item id
+			*) A currency link, from Shift-Clicking a currency
+			*) currency:#, where # is the currency id
+			*) A profession recipe, quantity is the number desired to make
+			*) enchant:#, where # is a profession recipe number (the profession window should be open for this to work)

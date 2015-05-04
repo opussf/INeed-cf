@@ -1,0 +1,2 @@
+F	B001 - Currency Link not shown on success text
+F	B002 - Scan of personal email not showing right amounts

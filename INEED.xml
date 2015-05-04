@@ -1,0 +1,55 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\..\FrameXML\UI.xsd">
+
+	<Frame name="INEED_Frame" frameStrata="BACKGROUND" toplevel="false" enableMouse="false" movable="false" parent="UIParent">
+	<!--
+		<Size x="512" y="96" />
+		<Anchors>
+			<Anchor point="CENTER" />
+		</Anchors>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture setAllPoints="true">
+					<Color r="0.0" g="0.0" b="0.0" a="0.25" />
+				</Texture>
+			</Layer>
+		</Layers>
+	-->
+		<Scripts>
+			<OnLoad>
+				INEED.OnLoad();
+				self:Hide();
+			</OnLoad>
+			<OnUpdate>
+				INEED.OnUpdate(arg1);
+			</OnUpdate>
+			<OnEvent>
+				INEED[event](self, ...)
+			</OnEvent>
+		</Scripts>
+	</Frame>
+	<MessageFrame name="INEED_SplashFrame" insertMode="TOP" frameStrata="MEDIUM" enableMouse="false" movable="false" parent="UIParent" fade="true" displayDuration="5" fadeDuration="3">
+		<Size x="512" y="96" />
+		<Color r="1" g="1" b="1"/>
+		<Anchors>
+			<Anchor point="CENTER" />
+		</Anchors>
+		<FontString name="$parentFontString" inherits="NumberFont_Outline_Huge" wraponspaces="true">
+			<Color r="1" g="1" b="1" />
+		</FontString>
+		<Layers>
+			<Layer level="MEDIUM">
+				<Texture setAllPoints="true">
+					<Color r="0.0" g="0.0" b="0.0" a="0.01" />
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				self:Hide();
+			</OnLoad>
+		</Scripts>
+	</MessageFrame>
+</Ui>
