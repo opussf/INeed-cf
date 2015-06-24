@@ -18,6 +18,7 @@ INEED = {}
 INEED_data = {}
 INEED_currency = {}
 INEED_account = {}
+INEED_unknown = {}
 
 INEED.bindTypes = {
 	[ITEM_SOULBOUND] = "Bound",
@@ -398,7 +399,6 @@ function INEED.makeOthersNeed()
 			end
 		end
 	end
-
 end
 function INEED.itemFulfilledAnnouce()
 	if INEED_options.audibleSuccess then
@@ -594,6 +594,7 @@ function INEED.addItem( itemLink, quantity )
 	end
 	if itemLink then
 		INEED.Print("Unknown link or command: "..string.sub(itemLink, 12))
+		INEED_unknown[time()] = itemLink
 		INEED.PrintHelp()
 	end
 end
@@ -652,7 +653,7 @@ function INEED.showList( searchTerm )
 	for itemID, _ in pairs(INEED_data) do
 		for realm, _ in pairs(INEED_data[itemID]) do
 			for name, data in pairs(INEED_data[itemID][realm]) do
-				if ( searchTerm == "me" and name == INEED.name ) or
+				if ( searchTerm == "me" and name == INEED.name and realm == INEED.realm ) or
 						( searchTerm == "realm" and realm == INEED.realm ) or
 						( searchTerm == "all" ) then
 					table.insert( updatedItems, { ["itemID"] = itemID, ["added"] = data.added, ["updated"] = (data.updated or data.added or 1) } )
@@ -665,7 +666,7 @@ function INEED.showList( searchTerm )
 		itemID = item.itemID
 		for realm, _ in pairs( INEED_data[itemID] ) do
 			for name, data in pairs( INEED_data[itemID][realm] ) do
-				if ( searchTerm == "me" and name == INEED.name ) or
+				if ( searchTerm == "me" and name == INEED.name and realm == INEED.realm ) or
 						( searchTerm == "realm" and realm == INEED.realm ) or
 						( searchTerm == "all" ) then
 					if showHeader then INEED.Print("Needed items:"); showHeader=nil; end
