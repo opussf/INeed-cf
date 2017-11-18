@@ -1,0 +1,37 @@
+Cards that are made from Darkmoon of Draenor Inscription
+/in item:112271
+/in item:112272
+/in item:112273
+/in item:112274
+/in item:112275
+/in item:112276
+/in item:112277
+/in item:112278
+
+/in item:112279
+/in item:112280
+/in item:112281
+/in item:112282
+/in item:112283
+/in item:112284
+/in item:112285
+/in item:112286
+
+/in item:112287
+/in item:112288
+/in item:112289
+/in item:112290
+/in item:112291
+/in item:112292
+/in item:112293
+/in item:112294
+
+/in item:112295
+/in item:112296
+/in item:112297
+/in item:112298
+/in item:112299
+/in item:112300
+/in item:112301
+/in item:112302
+

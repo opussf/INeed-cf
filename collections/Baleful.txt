@@ -1,0 +1,81 @@
+Account Bound items
+
+Cloth:
+	Priest, Mage, Warlock
+
+/in item:127777 -- Bracers
+/in item:127778 -- Robe
+/in item:127779 -- Treads
+/in item:127780 -- Gauntlets
+/in item:127781 -- Hood
+/in item:127782 -- Leggings
+/in item:127783 -- Spaulders
+/in item:127784 -- Girdle
+
+Leather:
+	Rogue, Monk, Druid
+
+/in item:127790 -- Bracers
+/in item:127791 -- Tunic
+/in item:127792 -- Boots
+/in item:127793 -- Gauntlets
+/in item:127794 -- Hood
+/in item:127795 -- Leggings
+/in item:127796 -- Spaulders
+/in item:127797 -- Girdle
+
+Mail:
+	Hunter, Shaman
+
+/in item:127803 -- Bracers
+/in item:127804 -- Robe
+/in item:127805 -- Treads
+/in item:127806 -- Gauntlets
+/in item:127807 -- Hood
+/in item:127808 -- Leggings
+/in item:127809 -- Spaulders
+/in item:127810 -- Girdle
+
+Plate:
+	Warrior, Paladin, Death Knight
+
+/in item:127816 -- Bracers
+/in item:127817 -- Robe
+/in item:127818 -- Treads
+/in item:127819 -- Gauntlets
+/in item:127821 -- Leggings
+/in item:127822 -- Spaulders
+/in item:127823 -- Girdle
+
+---------------
+BoP Items
+
+Misc:
+/in item:124561 -- Trinket
+/in item:124560 -- Cloak
+
+Weapons:
+/in item:124630 -- Staff
+/in item:124625 -- 2H sword
+/in item:124624 -- 1H sword
+/in item:124626 -- gun
+/in item:124628 -- 1H axe
+/in item:124631 -- 1H mace
+/in item:124629 -- 2H polearm
+
+Armor:
+/in item:124562 -- Armament
+/in item:124560 -- Cloak
+/in item:124551 -- Tunic
+/in item:124555 -- Leggings
+/in item:124554 -- Ring
+/in item:124559 -- Choker
+/in item:124550 -- Bracers
+/in item:124557 -- Girdle
+/in item:124554 -- Hood
+/in item:124553 -- Gauntlets
+/in item:124552 -- Threads
+/in item:124556 -- Spaulders (Drop, Vendor)
+/in item:128348 -- Spaulders (Zone Drop)
+/in item:127798 -- Ring
+/in item:127800 -- Cloak

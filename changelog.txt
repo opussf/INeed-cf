@@ -1,0 +1,4 @@
+Changes since 0.5.0-alpha..
+
+* fa896d8 2017-11-16 14:00:32 -0800 -  (HEAD -> connectedRealms) Update wowStubs for new API <opussf>
+* 8f7b1ec 2017-11-11 20:05:47 -0800 -  (tag: 0.5.0-alpha, origin/master, master, develop) Updating the interface version <opussf>

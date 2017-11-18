@@ -1,0 +1,36 @@
+Alliance Tabards
+/in item:45579
+/in item:45580
+/in item:64882
+/in item:45578
+/in item:45577
+/in item:45574
+/in item:83079
+
+-- Alliance Satchels
+/in item:67526
+/in item:67527
+/in item:67532
+/in item:67530
+/in item:67528
+/in item:67531
+/in item:92071
+
+
+Horde Tabards
+/in item:45581  -- Orgrimmar
+/in item:45582  -- Darkspear
+/in item:45583  -- Undercity
+/in item:45584  -- Thunderbluff
+/in item:45585  -- Silvermoon
+/in item:64884  -- BilgeWater
+/in item:83080  -- Huojin
+
+Horde Satchels
+/in item:67525 -- Bilgewater
+/in item:67529 -- Undercity
+/in item:67533 -- Orgrimmar
+/in item:67534 -- Thunderbluff
+/in item:67535 -- Silvermoon
+/in item:67536 -- Darkspear
+/in item:92070 -- Huojin

@@ -1,0 +1,17 @@
+-- Blood Cards  -- from Card of Omens
+/in item:113355
+
+/in item:113340
+/in item:113341
+/in item:113342
+/in item:113343
+/in item:113344
+/in item:113345
+/in item:113346 -- Green
+/in item:113347 -- Green
+/in item:113348 -- Green
+/in item:113349 -- Green
+/in item:113350 -- Blue 50g
+/in item:113351 -- Blue 100g
+/in item:113352 -- Purple 1000g
+/in item:113353 -- Purple 3000g

@@ -1,0 +1,46 @@
+Account Bound items
+
+Plate:
+	Warrior, Paladin, Death Knight
+
+/in item:102269  -- Belt
+/in item:102268  -- Spaulders
+/in item:102267  -- Leggings
+/in item:102266  -- Helm
+/in item:102265  -- Gloves
+/in item:102264  -- Boots
+/in item:102263  -- Chestpiece
+
+Mail:
+	Hunter, Shaman
+
+/in item:102323 -- Bracers
+/in item:
+/in item:
+/in item:
+/in item:
+
+Leather:
+	Rogue, Monk, Druid
+
+/in item:102283 -- Belt
+/in item:102282 -- Spaulders
+/in item:102322 -- Bracers
+/in item:102281 -- Leggings
+/in item:102280 -- Helm
+/in item:102279 -- Gloves
+/in item:102278 -- Boots
+/in item:102277 -- Chestpiece
+
+Cloth:
+	Priest, Mage, Warlock
+
+/in item:102290 -- Belt
+/in item:102289 -- Spaulders
+/in item:102288 -- Leggings
+/in item:102287 -- Helm
+/in item:102286 -- Gloves
+/in item:102285 -- Boots
+/in item:102284 -- Robes
+
+

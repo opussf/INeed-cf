@@ -18,7 +18,14 @@ INEED = {}
 INEED_data = {}
 INEED_currency = {}
 INEED_account = {}
+INEED_gold = {}
 INEED_unknown = {}
+INEED.criteriaTypes = {
+		[12] = "currency:%s",
+		[36] = "item:%s",
+		[42] = "item:%s",
+		[57] = "item:%s",
+}
 
 INEED.bindTypes = {
 	[ITEM_SOULBOUND] = "Bound",
@@ -55,34 +62,49 @@ function INEED.OnLoad()
 	INEED_Frame:RegisterEvent("MAIL_INBOX_UPDATE")
 	-- Tradeskill Events
 	INEED_Frame:RegisterEvent("TRADE_SKILL_SHOW")
-	INEED_Frame:RegisterEvent("TRADE_SKILL_CLOSE")
-	INEED_Frame:RegisterEvent("TRADE_SKILL_UPDATE")
+	--INEED_Frame:RegisterEvent("TRADE_SKILL_CLOSE")
+	INEED_Frame:RegisterEvent("TRADE_SKILL_LIST_UPDATE")
+	--INEED_Frame:RegisterEvent("TRADE_SKILL_FILTER_UPDATE")
 	-- ^^^ Fired immediately after TRADE_SKILL_SHOW, after something is created via tradeskill, or anytime the tradeskill window is updated (filtered, tree folded/unfolded, etc.)
+	INEED_Frame:RegisterEvent("PLAYER_MONEY")
+	-- Hide display
+	INEED_Frame:RegisterEvent("PLAYER_REGEN_ENABLED")
+	INEED_Frame:RegisterEvent("PLAYER_REGEN_DISABLED")
 end
 function INEED.TRADE_SKILL_SHOW()
-	INEED.Print("TradeSkill window opened.")
-	for index = 1,GetNumTradeSkills() do
-		if select( 2, GetTradeSkillInfo( index ) ) ~= "header" then
-			local itemLink = GetTradeSkillItemLink( index )
-			local itemID = INEED.getItemIdFromLink( itemLink )
-			if INEED_data[itemID] and INEED_data[itemID][INEED.realm] then
-				local names = {}
-				local printItem = nil -- set to true if someone is actually found that has an outstanding need
-				for name, data in pairs( INEED_data[itemID][INEED.realm] ) do
-					if (data.faction == INEED.faction) and (data.needed - data.total - ( data.inMail or 0 ) > 0) then
-						-- same faction, and not fulfilled via mail already
-						tinsert( names, name )
-						printItem = true -- set the flag on to print
+	--INEED.Print("TradeSkill window opened.")
+	INEED.TradeSkillsScanned = false
+end
+function INEED.TRADE_SKILL_CLOSE()
+end
+function INEED.TRADE_SKILL_LIST_UPDATE()
+	--INEED.Print("TradeSkill Update")
+	if not INEED.TradeSkillsScanned then
+		INEED.TradeSkillsScanned = true
+		local recipeTable = C_TradeSkillUI.GetAllRecipeIDs()
+		for i,recipeID in pairs(recipeTable) do
+			local recipeInfo = C_TradeSkillUI.GetRecipeInfo( recipeID )
+			if recipeInfo.learned then
+				local itemLink = C_TradeSkillUI.GetRecipeItemLink( recipeID )
+				local itemID = INEED.getItemIdFromLink( itemLink )
+				if INEED_data[itemID] and INEED_data[itemID][INEED.realm] then
+					local names = {}
+					local printItem = nil -- set to true if someone is actually found that has an outstanding need
+					for name, data in pairs( INEED_data[itemID][INEED.realm] ) do
+						if (data.faction == INEED.faction) and (data.needed - data.total - ( data.inMail or 0 ) > 0) then
+							-- same faction, and not fulfilled via mail already
+							tinsert( names, name )
+							printItem = true -- set the flag on to print
+						end
 					end
+					local _ = printItem and INEED.Print( itemLink.." is needed by: "..table.concat( names, ", " ) )
 				end
-				local _ = printItem and INEED.Print( itemLink.." is needed by: "..table.concat( names, ", " ) )
 			end
 		end
 	end
 end
-function INEED.TRADE_SKILL_CLOSE()
-end
-function INEED.TRADE_SKILL_UPDATE()
+function INEED.TRADE_SKILL_FILTER_UPDATE()
+	--INEED.Print("TradeSkill Filter Update")
 end
 function INEED.MAIL_SEND_INFO_UPDATE()
 	INEED.mailInfo = {}
@@ -93,7 +115,7 @@ function INEED.MAIL_SEND_INFO_UPDATE()
 		local link = GetSendMailItemLink( slot )
 		if link then
 			local itemID = INEED.getItemIdFromLink( link )
-			local quantity = select( 3, GetSendMailItem( slot ) )
+			local quantity = select( 4, GetSendMailItem( slot ) )
 			INEED.mailInfo.items[itemID] = (INEED.mailInfo.items[itemID] and
 					(INEED.mailInfo.items[itemID] + quantity) or
 					quantity)
@@ -129,6 +151,7 @@ function INEED.MAIL_SEND_SUCCESS()
 				INEED_data[i][realm][sendto].inMail =
 						(INEED_data[i][realm][sendto].inMail and
 						(INEED_data[i][realm][sendto].inMail + q) or q)
+				INEED_data[i][realm][sendto].updated = time()
 				--INEED.Print(i..":"..q)
 			end
 		end
@@ -147,7 +170,7 @@ function INEED.MAIL_INBOX_UPDATE()
 		if itemCount then
 			for itemIndex = 1, itemCount do
 				local itemID = INEED.getItemIdFromLink( GetInboxItemLink( mailID, itemIndex ) )
-				local q = select( 3, GetInboxItem( mailID, itemIndex ) )
+				local q = select( 4, GetInboxItem( mailID, itemIndex ) )
 				if itemID then
 					INEED.inboxInventory[itemID] =
 							(INEED.inboxInventory[itemID] and
@@ -214,6 +237,7 @@ function INEED.BAG_UPDATE()
 				--INEED.Print("Recorded does not equal what I have")
 				INEED_data[itemID][INEED.realm][INEED.name].updated = time()
 				INEED_data[itemID][INEED.realm][INEED.name]['total'] = iHaveNum
+
 				if INEED_options.showProgress or INEED_options.printProgress then
 					local progressString = string.format("%i/%i %s%s",
 							iHaveNum, INEED_data[itemID][INEED.realm][INEED.name].needed,
@@ -278,10 +302,10 @@ function INEED.BAG_UPDATE()
 			end
 		end
 	end
-
 	if itemFulfilled then
 		INEED.itemFulfilledAnnouce()
 	end
+	INEEDUIListFrame:Show()
 end
 INEED.UNIT_INVENTORY_CHANGED = INEED.BAG_UPDATE
 function INEED.CURRENCY_DISPLAY_UPDATE()
@@ -319,14 +343,16 @@ function INEED.CURRENCY_DISPLAY_UPDATE()
 	if itemFulfilled then
 		INEED.itemFulfilledAnnouce()
 	end
+	INEEDUIListFrame:Show()
 end
 function INEED.MERCHANT_SHOW()
 	-- Event handler.  Autopurchase
 	--local numItems = GetMerchantNumItems()
 	local purchaseAmount = 0
 	local msgSent = false
-	for i = 0, GetMerchantNumItems() do
-		local itemID = INEED.getItemIdFromLink( GetMerchantItemLink( i ) )
+	for i = 0, GetMerchantNumItems() do  -- Go through the items for sale
+		local itemLink = GetMerchantItemLink( i )
+		local itemID = INEED.getItemIdFromLink( itemLink )
 		if INEED_data[itemID] and
 				INEED_data[itemID][INEED.realm] and
 				INEED_data[itemID][INEED.realm][INEED.name] then
@@ -339,6 +365,8 @@ function INEED.MERCHANT_SHOW()
 			local itemT = INEED_data[itemID][INEED.realm][INEED.name]
 			local neededQuantity = itemT.needed - itemT.total
 			if not msgSent then INEED.Print("This merchant sells items that you need"); msgSent=true; end
+			INEED_data[itemID][INEED.realm][INEED.name].updated = time()
+			INEEDUIListFrame:Show()
 			if isUsable and INEED_account.balance and currencyCount == 0 then  -- I have money to spend, and not a special currency
 				-- How many can I afford at this price.
 				local canAffordQuantity = math.floor(((INEED_account.balance or 0) * quantity) / price)
@@ -357,6 +385,25 @@ function INEED.MERCHANT_SHOW()
 				local itemPurchaseAmount = ((purchaseQuantity/quantity) * price)
 				purchaseAmount = purchaseAmount + itemPurchaseAmount
 				INEED_account.balance = INEED_account.balance - itemPurchaseAmount
+			elseif isUsable and price == 0 and currencyCount > 0 then
+				for ci = 1, currencyCount do
+					local _, value, link = GetMerchantItemCostItem( i, ci )
+					local itemID = INEED.getItemIdFromLink( link )
+					if itemID
+							and ((INEED_data[itemID] and INEED_data[itemID][INEED.realm] and INEED_data[itemID][INEED.realm][INEED.name] and (value > INEED_data[itemID][INEED.realm][INEED.name].needed))
+							or (not ((INEED_data[itemID] and INEED_data[itemID][INEED.realm] and INEED_data[itemID][INEED.realm][INEED.name] and INEED_data[itemID][INEED.realm][INEED.name].needed >= value))))
+							then
+						INEED.addItem( link, value )
+					end
+
+					local currencyID = INEED.getCurrencyIdFromLink( link )
+					if currencyID
+							and ((INEED_currency[currencyID] and (value > INEED_currency[currencyID].needed))
+							or (not INEED_currency[currencyID]))
+							then
+						INEED.addItem( link, value )
+					end
+				end
 			end
 		end
 	end
@@ -372,9 +419,75 @@ function INEED.MERCHANT_SHOW()
 	BuyMerchantItem(index {, quantity});
 	]]--
 end
+function INEED.PLAYER_MONEY()
+	-- PLAYER_MONEY has changed
+	if INEED_account.percent then  -- look to see if need to add to balance
+		local change = GetMoney() - (INEED_account.current or 0)
+		change = change * INEED_account.percent
+		if ((not INEED_account.max) or ((INEED_account.balance or 0) < INEED_account.max)) and change>0 then
+			INEED_account.balance = (INEED_account.balance or 0) + change
+			if INEED_account.max and (INEED_account.balance > INEED_account.max) then
+				INEED_account.balance = INEED_account.max
+			end
+			INEED.Print( "account: "..GetCoinTextureString((INEED_account.balance or 0)).." +"..GetCoinTextureString( change ) )
+		end
+	end
+	INEED_account.current = GetMoney()
+	if INEED_gold[INEED.realm] then
+		if INEED_gold[INEED.realm][INEED.name] then
+			if INEED_gold[INEED.realm][INEED.name].needed then
+				itemFulfilled = false
+				local needed = INEED_gold[INEED.realm][INEED.name].needed
+				local total = GetMoney()
+				local gained = total - INEED_gold[INEED.realm][INEED.name].total
+				INEED_gold[INEED.realm][INEED.name].total = total
+				INEED_gold[INEED.realm][INEED.name].updated = time()
+
+				if total < needed then
+					if INEED_options.showProgress or INEED_options.printProgress then
+						local progressString = string.format("%s/%s %s",
+								GetCoinTextureString(total), GetCoinTextureString(needed),
+								(INEED_options.includeChange and
+									string.format(" (%s%s%s%s) ", ((gained > 0) and COLOR_GREEN or COLOR_RED), ((gained > 0) and "+" or "-"),
+										GetCoinTextureString(math.abs(gained)), COLOR_END)
+									or "")
+								)
+						_ = INEED_options.showProgress and UIErrorsFrame:AddMessage( progressString, 1.0, 1.0, 0.1, 1.0 )
+						_ = INEED_options.printProgress and INEED.Print( progressString )
+					end
+					INEEDUIListFrame:Show()
+				elseif total >= needed then
+					_ = INEED_options.showSuccess and
+							INEED.showSplash( string.format("%s/%s",
+									GetCoinTextureString(total), GetCoinTextureString(needed) ) )
+					_ = INEED_options.printSuccess and
+							INEED.Print( string.format( "Reached goal of %s.", GetCoinTextureString( needed ) ) )
+					INEED_gold[INEED.realm][INEED.name] = nil
+					INEED.clearData()
+					itemFulfilled = true
+				end
+				_ = itemFulfilled and INEED.itemFulfilledAnnouce()
+			end
+		end
+	end
+end
+function INEED.PLAYER_REGEN_DISABLED()
+	-- combat start
+	if INEED_options.combatHide then
+		INEED.hide = true
+		INEEDUIListFrame:Hide()
+	end
+end
+function INEED.PLAYER_REGEN_ENABLED()
+	-- combat ends
+	INEED.hide = nil
+	INEEDUIListFrame:Show()
+end
 function INEED.OnUpdate()
 end
+-----------------------------------------
 -- Non Event functions
+-----------------------------------------
 function INEED.makeOthersNeed()
 	-- This parses the saved data to determine what other players need.
 	-- Call this at ADDON_LOADED and probably MAIL_SEND_SUCCESS?
@@ -409,11 +522,15 @@ function INEED.itemFulfilledAnnouce()
 			PlaySoundFile( INEED_options.soundFile )
 		end
 	end
+	if INEED_options.doScreenShot then
+		Screenshot()
+	end
 end
 function INEED.showSplash( msg )
 	-- Show the 'success' messages in the middle splash
 	INEED_SplashFrame:Show()
 	INEED_SplashFrame:AddMessage( msg, 1, 1, 1 )
+
 end
 function INEED.clearData()
 	-- this function will look for 'empty' realms and items and clear them
@@ -433,6 +550,21 @@ function INEED.clearData()
 		if realmCount == 0 then
 			INEED_data[itemID] = nil
 		end
+	end
+	local realmCount = 0
+	for realm in pairs(INEED_gold) do
+		local charCount = 0
+		realmCount = realmCount + 1
+		for _ in pairs( INEED_gold[realm] ) do
+			charCount = charCount + 1
+		end
+		if charCount == 0 then
+			INEED_gold[realm] = nil
+			realmCount = realmCount - 1
+		end
+	end
+	if realmCount == 0 then
+		INEED_gold = {}
 	end
 end
 function INEED.hookSetItem(tooltip, ...)  -- is passed the tooltip frame as a table
@@ -485,6 +617,27 @@ function INEED.hookSetCurrencyToken(tooltip, index, ...)
 	INEED.Print("i:"..(i or "nil"))
 end
 ]]--
+function INEED.addItemToTable( tableIn, needed, total, includeFaction, link )
+	-- given a table, make sure that the 'normal' structure exists.
+	-- needed: how many are needed (required )
+	-- total: total you have ( required )
+	-- includeFaction: include the faction info (boolean)
+	-- link: the link for the needed item (optional)
+	-- return the modified table - or original table if nothing to do.
+	if tableIn and needed and total then
+		tableIn.needed = needed
+		tableIn.total = total
+		if includeFaction then
+			tableIn.faction = INEED.faction
+		end
+		tableIn.link = link
+		tableIn.added = tableIn.added or time()
+		tableIn.updated = time()
+	end
+	return tableIn
+end
+function INEED.showProgress()
+end
 function INEED.parseCmd(msg)
 	if msg then
 		local i,c = strmatch(msg, "^(|c.*|r)%s*(%d*)$")
@@ -504,6 +657,7 @@ function INEED.parseCmd(msg)
 end
 function INEED.addItem( itemLink, quantity )
 	-- returns itemLink of what was added
+	INEEDUIListFrame:Show()
 	quantity = quantity or 1
 	local itemID = INEED.getItemIdFromLink( itemLink )
 	if itemID then
@@ -518,14 +672,8 @@ function INEED.addItem( itemLink, quantity )
 				INEED_data[itemID][INEED.realm] = INEED_data[itemID][INEED.realm] or {}
 				INEED_data[itemID][INEED.realm][INEED.name] = INEED_data[itemID][INEED.realm][INEED.name] or {}
 
-				--INEED_data[itemID] = INEED_data[itemID] or {[INEED.realm]={[INEED.name]={}}}
-				INEED_data[itemID][INEED.realm][INEED.name]['link'] = linkString -- only for debuging
-				INEED_data[itemID][INEED.realm][INEED.name]['needed'] = quantity
-				INEED_data[itemID][INEED.realm][INEED.name]['total'] = youHave
-				--INEED_data[itemID][INEED.realm][INEED.name]['total'] = 0  -- Force an update if you already have some
-				INEED_data[itemID][INEED.realm][INEED.name]['added'] = INEED_data[itemID][INEED.realm][INEED.name]['added'] or time() -- only set if new
-				INEED_data[itemID][INEED.realm][INEED.name]['updated'] = time() -- Allow persistent adding to update
-				INEED_data[itemID][INEED.realm][INEED.name]['faction'] = INEED.faction
+				INEED_data[itemID][INEED.realm][INEED.name] = INEED.addItemToTable( INEED_data[itemID][INEED.realm][INEED.name],
+						quantity, youHave, true, linkString )
 			else
 				INEED.Print( string.format( COLOR_RED.."-------"..COLOR_END..": %i/%i %s (item:%s Bags: %i Bank: %i)",
 						youHave, quantity, linkString, itemID, inBags, youHave-inBags ) )
@@ -544,19 +692,25 @@ function INEED.addItem( itemLink, quantity )
 	local enchantID = INEED.getEnchantIdFromLink( itemLink )
 	if enchantID then
 		INEED.Print( string.format( "You need: %i %s (enchant:%s)", quantity, itemLink, enchantID ) )
-		local numSkills = GetNumTradeSkills()
-		for index = 1, numSkills do  -- loop through the recepies
-			local testEnchantID = INEED.getEnchantIdFromLink( GetTradeSkillRecipeLink( index ) )  -- enchantID
-			if enchantID == testEnchantID then  -- linked enchant == enchant from list ?
-				local ItemLink = GetTradeSkillItemLink( index )  -- add the item, there may be a bug here
-				local minMade, maxMade =GetTradeSkillNumMade( index )
-				INEED.addItem( ItemLink, minMade * quantity ) -- If a tradeskill makes more than one at a time.
+		local recipeTable = C_TradeSkillUI.GetAllRecipeIDs()
+		for i,recipeID in pairs(recipeTable) do
+			if recipeID == tonumber(enchantID) then -- found the enchant link just needed
+				--INEED.Print( "Needing :"..recipeID )
+				local madeItemLink = C_TradeSkillUI.GetRecipeItemLink( recipeID )
+				local minMade, maxMade = C_TradeSkillUI.GetRecipeNumItemsProduced( recipeID )
+				INEED.addItem( madeItemLink, minMade * quantity ) -- If a tradeskill makes more than one at a time.
 
-				local numReagents = GetTradeSkillNumReagents( index )
+				local numReagents = C_TradeSkillUI.GetRecipeNumReagents( recipeID )
 				for reagentIndex = 1, numReagents do
-					local _, _, reagentCount = GetTradeSkillReagentInfo( index, reagentIndex )
-					local reagentLink = GetTradeSkillReagentItemLink( index, reagentIndex )
+					local _, _, reagentCount = C_TradeSkillUI.GetRecipeReagentInfo( recipeID, reagentIndex )
+					local reagentLink = C_TradeSkillUI.GetRecipeReagentItemLink( recipeID, reagentIndex )
 					INEED.addItem( reagentLink, reagentCount * quantity )
+				end
+				local toolName = C_TradeSkillUI.GetRecipeTools( recipeID )
+				if toolName then
+					INEED.Print( toolName )
+					local _, toolLink = GetItemInfo( toolName )
+					INEED.addItem( toolLink, 1 )
 				end
 			end
 		end
@@ -573,11 +727,10 @@ function INEED.addItem( itemLink, quantity )
 				INEED.Print( string.format( "Needing: %i/%i %s (currency:%s)",
 						curAmount, quantity, currencyLink, currencyID ) )
 				INEED_currency[currencyID] = INEED_currency[currencyID] or {}
-				INEED_currency[currencyID]['needed'] = quantity
-				INEED_currency[currencyID]['total'] = curAmount
-				INEED_currency[currencyID]['added'] = INEED_currency[currencyID]['added'] or time()
-				INEED_currency[currencyID]['updated'] = time()
-				INEED_currency[currencyID]['name'] = curName
+
+				INEED_currency[currencyID] = INEED.addItemToTable( INEED_currency[currencyID], quantity, curAmount, false)
+				INEED_currency[currencyID]['name'] = curName -- custom field
+
 			else
 				--local currencyLink = GetCurrencyLink( currencyID )
 				INEED.Print( string.format( COLOR_RED.."-------"..COLOR_END..": %s %i / %i",
@@ -591,6 +744,44 @@ function INEED.addItem( itemLink, quantity )
 			end
 		end
 		return itemLink -- return done
+	end
+	local needGoldAmount, modify = INEED.parseGold( itemLink )
+	if needGoldAmount then
+		local curAmount = GetMoney()
+		if modify then
+			needGoldAmount = curAmount + needGoldAmount
+		end
+		--print("Need gold amount: "..(needGoldAmount or "nil") )
+		if curAmount < needGoldAmount then
+			INEED.Print( string.format( "Needing: %s/%s",
+					GetCoinTextureString(curAmount), GetCoinTextureString(needGoldAmount) ) )
+			INEED_gold[INEED.realm] = INEED_gold[INEED.realm] or {}
+			INEED_gold[INEED.realm][INEED.name] = INEED_gold[INEED.realm][INEED.name] or {}
+			INEED_gold[INEED.realm][INEED.name] = INEED.addItemToTable( INEED_gold[INEED.realm][INEED.name], needGoldAmount, curAmount )
+		elseif needGoldAmount == 0 then
+			if INEED_gold[INEED.realm] and INEED_gold[INEED.realm][INEED.name] then
+				INEED.Print( "Removing gold from your need list" )
+				INEED_gold[INEED.realm][INEED.name] = nil
+			end
+		end
+		return itemLink  -- return done
+	end
+	local achievementID = INEED.getAchievementIdFromLink( itemLink )
+	if achievementID then
+		_, name, points, completed = GetAchievementInfo( achievementID )
+		if not completed then
+			numCriteria = GetAchievementNumCriteria( achievementID )
+			if numCriteria then
+				for i = 1, numCriteria do
+					desc, criteriaType, completedCriteria, quantity, reqQuantity, charName, flags, assetID, quantityString, criteriaID = GetAchievementCriteriaInfo( achievementID, i )
+					criteriaFormatString = INEED.criteriaTypes[criteriaType]
+					if criteriaFormatString and not completedCriteria then
+						INEED.addItem( string.format( criteriaFormatString, assetID ).." "..reqQuantity )
+					end
+				end
+			end
+		end
+		return itemLink
 	end
 	if itemLink then
 		INEED.Print("Unknown link or command: "..string.sub(itemLink, 12))
@@ -616,6 +807,11 @@ function INEED.getCurrencyIdFromLink( currencyLink )
 	-- currency:402
 	if currencyLink then
 		return strmatch( currencyLink, "currency:(%d*)" )
+	end
+end
+function INEED.getAchievementIdFromLink( achievementLink )
+	if achievementLink then
+		return strmatch( achievementLink, "achievement:(%d*)" )
 	end
 end
 function INEED.command(msg)
@@ -650,53 +846,70 @@ function INEED.showList( searchTerm )
 	searchTerm = (searchTerm and string.len(searchTerm) ~= 0) and searchTerm or "me"    -- me | realm | all
 	local showHeader = true
 	local updatedItems = {}
+	-- Search for items that are needed, based on search term
 	for itemID, _ in pairs(INEED_data) do
 		for realm, _ in pairs(INEED_data[itemID]) do
 			for name, data in pairs(INEED_data[itemID][realm]) do
 				if ( searchTerm == "me" and name == INEED.name and realm == INEED.realm ) or
 						( searchTerm == "realm" and realm == INEED.realm ) or
 						( searchTerm == "all" ) then
-					table.insert( updatedItems, { ["itemID"] = itemID, ["added"] = data.added, ["updated"] = (data.updated or data.added or 1) } )
+					table.insert( updatedItems, {
+							["updated"] = (data.updated or data.added or 1),
+							["displayStr"] = string.format("%i/%i x %s for %s of %s",
+									data.total, data.needed, (select( 2, GetItemInfo( itemID ) ) ), name, realm ),
+					} )
 				end
 			end
 		end
 	end
-	table.sort( updatedItems, function(a,b)	return a.updated<b.updated end ) -- sort by updated
+
+	-- add currency entries, which are only for you
+	for currencyID, cData in pairs( INEED_currency ) do
+		table.insert( updatedItems, {
+				["updated"] = (cData.updated or cData.added or 1),
+				["displayStr"] = string.format("%i/%i x %s",
+						cData.total, cData.needed, GetCurrencyLink( currencyID ) )
+		})
+	end
+
+	-- add the Gold entries (Use the search value here)
+	for realm, _ in pairs( INEED_gold ) do
+		for name, data in pairs( INEED_gold[realm] ) do
+			if ( searchTerm == "me" and name == INEED.name and realm == INEED.realm ) or
+					( searchTerm == "realm" and realm == INEED.realm ) or
+					( searchTerm == "all" ) then
+				table.insert( updatedItems, {
+						["updated"] = (data.updated or data.added or 1),
+						["displayStr"] = string.format("%s/%s for %s of %s",
+								GetCoinTextureString( data.total ), GetCoinTextureString( data.needed ),
+								name, realm )
+				} )
+			end
+		end
+	end
+
+	-- sort the values by updated
+	table.sort( updatedItems, function(a,b)	return a.updated<b.updated end ) -- sort by updated, most recent is last
+
+	-- display the list
 	for _, item in pairs( updatedItems ) do
 		itemID = item.itemID
-		for realm, _ in pairs( INEED_data[itemID] ) do
-			for name, data in pairs( INEED_data[itemID][realm] ) do
-				if ( searchTerm == "me" and name == INEED.name and realm == INEED.realm ) or
-						( searchTerm == "realm" and realm == INEED.realm ) or
-						( searchTerm == "all" ) then
-					if showHeader then INEED.Print("Needed items:"); showHeader=nil; end
-					local itemLink = select( 2, GetItemInfo( itemID ) ) or "item:"..itemID
-					INEED.Print(string.format("%i/%i x %s is needed by %s of %s", data.total, data.needed,
-							itemLink, name, realm))
-				end
-			end
-		end
+		if showHeader then INEED.Print("Needed items:"); showHeader=nil; end
+		INEED.Print( item.displayStr )
 	end
-	--[[
-	table.sort( items, function(a,b) return a.updated > b.updated end ) -- more recnet updated is last
-	INEED.Print("Needed items:")
-	for itemID, data in pairs( items ) do
-		local itemLink = select( 2, GetItemInfo( itemID ) ) or "item:"..itemID
-		INEED.Print(string.format("%i/%i x %s is needed by %s of %s", data.total, data.needed,
-				itemLink, name, realm))
-	end
-	]]
-	for currencyID, cData in pairs( INEED_currency ) do
-		local currencyLink = GetCurrencyLink( currencyID )
-		INEED.Print( string.format( "%i/%i x %s", cData.total, cData.needed, currencyLink ) )
-	end
+	return updatedItems
 end
 function INEED.itemIsSoulbound( itemLink )
 	-- return 1 or nil to reflect if the item is BOP or bound
-	INEED.scanTip:SetOwner(UIParent, "ANCHOR_NONE")
-	INEED.scanTip:ClearLines()
-	INEED.scanTip:SetHyperlink( itemLink )
-	return INEED.bindTypes[INEED.scanTip2:GetText()] or INEED.bindTypes[INEED.scanTip3:GetText()] or INEED.bindTypes[INEED.scanTip4:GetText()]
+	if itemLink then
+		INEED.scanTip:SetOwner(UIParent, "ANCHOR_NONE")
+		INEED.scanTip:ClearLines()
+		INEED.scanTip:SetHyperlink( itemLink )
+		return INEED.bindTypes[INEED.scanTip2:GetText()] or INEED.bindTypes[INEED.scanTip3:GetText()] or INEED.bindTypes[INEED.scanTip4:GetText()]
+	else
+		INEED.Print("itemIsSoulbound was called wit a 'nil' value.")
+	end
+
 end
 function INEED.showFulfillList()
 	-- returns number of items you can fulfill, or nil if none
@@ -710,6 +923,7 @@ function INEED.showFulfillList()
 				for name, data in pairs(INEED_data[itemID][realm]) do
 					if (name ~= INEED.name) and (data.faction and data.faction == INEED.faction) then -- not you and right faction
 						itemLink = select( 2, GetItemInfo( itemID ) )
+						--if not itemLink then INEED.Print(itemID.." created a nil link.") end
 						isSoulBound = INEED.itemIsSoulbound( itemLink )
 						--INEED.Print( "Looking at "..itemLink..". Which is "..( INEED.itemIsSoulbound( itemLink ) and "soulbound" or "not soulbound" ) )
 						if not isSoulBound then
@@ -735,22 +949,38 @@ function INEED.showFulfillList()
 	end
 	return youHaveTotal -- for unit testing
 end
-function INEED.accountInfo( value )
+function INEED.parseGold( valueIn )
+	-- parse the gold value passed in
+	-- returns value, modify
+	--     modify is true if the value should be added, value could be negative
+	-- nil is a sign of invalid value
+	-- may be a bug to examine, but this seems to never return nil
 	local sub,add = false, false
-	if value and value ~= "" then
-		sub = strfind( value, "^[-]" )
-		add = strfind( value, "^[+]" )
-		if tonumber(value) then
+	local valid = false
+	if valueIn and valueIn ~= "" then
+		sub = strfind( valueIn, "^[-]" )  -- given a negative number, subtract this amount
+		add = strfind( valueIn, "^[+]" )  -- given a number with a +, add this ammount instead of replace
+		if tonumber(valueIn) then
+			value = tonumber(valueIn)  -- just use this value
+			valid = true
 		else
-			local gold   = strmatch( value, "(%d+)g" )
-			local silver = strmatch( value, "(%d+)s" )
-			local copper = strmatch( value, "(%d+)c" )
+			local gold   = strmatch( valueIn, "(%d+)g" )
+			local silver = strmatch( valueIn, "(%d+)s" )
+			local copper = strmatch( valueIn, "(%d+)c" )
+			valid = (gold or silver or copper)
 			value = ((gold or 0) * 10000) + ((silver or 0) * 100) + (copper or 0)
 			if sub then value = -value end
 		end
+		if valid then return value, (sub or add) end
+	end
+end
+function INEED.accountInfo( value )
+	value, modify = INEED.parseGold( value )
+
+	if value then
 		INEED_account.balance = INEED_account.balance
-				and ((sub or add) and INEED_account.balance + value)
-				or tonumber(value)
+				and (modify and INEED_account.balance + value)
+				or value
 	end
 	if INEED_account.balance and INEED_account.balance <= 0 then
 		INEED_account.balance = nil
@@ -778,11 +1008,67 @@ function INEED.remove( nameIn )
 		INEED.clearData()
 	end
 end
+INEED.archaeologyCurrencies = {
+	1174, --  1 - Demonic
+	1173, --  2 - Highmountain Tauren
+	1172, --  3 - Highborne
+	828, --  4 - Ogre
+	821, --  5 - Draenor Clans
+	829, --  6 - Arakkoa
+	677, --  7 - Mogu
+	676, --  8 - Pandaren
+	754, --  9 - Mantid
+	399, -- 10 - Vrykul
+	385, -- 11 - Troll
+	401, -- 12 - Tol'vir
+	397, -- 13 - Orc
+	400, -- 14 - Nerubian
+	394, -- 15 - Night Elf
+	393, -- 16 - Fossil
+	398, -- 17 - Draenei
+	384, -- 18 - Dwarf
+}
+function INEED.archScan()
+	--print("ArchScan")
+	local numRaces = GetNumArchaeologyRaces()
+	--print("NumRaces: "..numRaces)
+	for i = 1, GetNumArchaeologyRaces() do
+		--print("i: "..i..":"..GetArchaeologyRaceInfo( i ) )
+		if INEED.archaeologyCurrencies[i] then
+
+			local raceName, raceTexture, raceItemID, numFragmentsCollected, numFragmentsRequired, maxFragments = GetArchaeologyRaceInfo( i )
+			if select( 7, GetCurrencyInfo(INEED.archaeologyCurrencies[i]) ) then
+				INEED.addItem( "currency:"..INEED.archaeologyCurrencies[i], numFragmentsRequired )
+			end
+		end
+	end
+end
+function INEED.slush( strIn )
+	--print( "Slush( "..strIn.. " )")
+	local percentLoc, percentLocEnd = strfind( strIn, "[.0-9]*%%")
+	if percentLoc then
+		--print( percentLoc, percentLocEnd )
+		local percent = strsub( strIn, percentLoc, percentLocEnd-1 )
+		local goldValue = strsub( strIn, percentLocEnd+2 )
+		--print( "goldValue: "..goldValue )
+		local maxValue, modify = INEED.parseGold( goldValue )
+
+		--print( "Slush( "..(percent or "nil")..", "..(maxValue or "nil").." )" )
+		--print( percent.."::"..(maxValue or "nil").." -> "..value.."::"..(modify and "true" or "false") )
+
+		INEED_account.percent = percent / 100
+		INEED_account.max = (modify) and (INEED_account.max and INEED_account.max + maxValue) or maxValue
+		INEED_account.current = GetMoney()
+	end
+	INEED.Print( "Slush: "..(INEED_account.percent and ((INEED_account.percent * 100).."%") or "")..
+			(INEED_account.max and (" max: "..GetCoinTextureString(INEED_account.max)) or "") )
+end
 
 -- Testing functions
 
 function INEED.test()
 	INEEDUIFrame:Hide()
+	INEEDUIFrame:Show()
 --[[
 	INEED.Print("Registering for event")
 	INEED_Frame:RegisterEvent("CALENDAR_UPDATE_EVENT_LIST")
@@ -837,6 +1123,21 @@ INEED.CommandList = {
 	["remove"] = {
 		["func"] = INEED.remove,
 		["help"] = {"<name>-<realm>", "Removes <name>-<realm>"},
+	},
+	["arch"] = {
+		["func"] = INEED.archScan,
+		["help"] = {"", "Scans the archaeology items"},
+	},
+	["slush"] = {
+		["func"] = INEED.slush,
+		["help"] = {"[percent%] [MaxAmount]", "Sets an auto fill percent up to MaxAmount"},
+	},
+	["combat"] = {
+		["func"] = function()
+				INEED_options.combatHide = not INEED_options.combatHide or nil
+				INEED.Print( "Hide: "..( INEED_options.combatHide and "ON" or "OFF" ) )
+				end,
+		["help"] = {"", "Toggle combat hide"}
 	},
 	["test"] = {
 		["func"] = INEED.test,
