@@ -429,10 +429,16 @@ function INEED.PLAYER_MONEY()
 			if INEED_account.max and (INEED_account.balance > INEED_account.max) then
 				INEED_account.balance = INEED_account.max
 			end
-			INEED.Print( "account: "..GetCoinTextureString((INEED_account.balance or 0)).." +"..GetCoinTextureString( change ) )
+			--INEED.Print( "account: "..GetCoinTextureString((INEED_account.balance or 0)).." +"..GetCoinTextureString( change ) )
+
 		end
 	end
 	INEED_account.current = GetMoney()
+	-- adjust the account current down if the balance is more than what you have.
+	if INEED_account.balance and INEED_account.balance > INEED_account.current then
+		INEED_account.balance = INEED_account.current
+	end
+	-- show info and update needed if tracking.
 	if INEED_gold[INEED.realm] then
 		if INEED_gold[INEED.realm][INEED.name] then
 			if INEED_gold[INEED.realm][INEED.name].needed then
@@ -470,6 +476,7 @@ function INEED.PLAYER_MONEY()
 			end
 		end
 	end
+	INEED.updateTitleText( )
 end
 function INEED.PLAYER_REGEN_DISABLED()
 	-- combat start
@@ -908,7 +915,7 @@ function INEED.itemIsSoulbound( itemLink )
 		INEED.scanTip:SetHyperlink( itemLink )
 		return INEED.bindTypes[INEED.scanTip2:GetText()] or INEED.bindTypes[INEED.scanTip3:GetText()] or INEED.bindTypes[INEED.scanTip4:GetText()]
 	else
-		INEED.Print("itemIsSoulbound was called wit a 'nil' value.")
+		INEED.Print("itemIsSoulbound was called with a 'nil' value.")
 	end
 
 end
@@ -986,6 +993,7 @@ function INEED.accountInfo( value )
 	if INEED_account.balance and INEED_account.balance <= 0 then
 		INEED_account.balance = nil
 	end
+	INEED.updateTitleText( )
 	INEED.Print( "The current autoSpend account balance is: "..
 			( INEED_account.balance and GetCoinTextureString( INEED_account.balance ) or "0" ) )
 end
@@ -1061,8 +1069,14 @@ function INEED.slush( strIn )
 		INEED_account.max = (modify) and (INEED_account.max and INEED_account.max + maxValue) or maxValue
 		INEED_account.current = GetMoney()
 	end
+	INEED.updateTitleText( )
 	INEED.Print( "Slush: "..(INEED_account.percent and ((INEED_account.percent * 100).."%") or "")..
 			(INEED_account.max and (" max: "..GetCoinTextureString(INEED_account.max)) or "") )
+end
+function INEED.updateTitleText( )
+	local accountBalanceStr = INEED_account.balance and GetCoinTextureString( INEED_account.balance )
+	INEED.UITitleText = "INEED"..( accountBalanceStr and " - "..accountBalanceStr or "" )
+	INEEDUIListFrame_TitleText:SetText( INEED.UITitleText )
 end
 
 -- Testing functions

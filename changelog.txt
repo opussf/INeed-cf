@@ -1,3 +1,9 @@
-Changes since 0.12.1..
+Changes since 0.13..
 
-* 6d403aa 2018-02-09 20:33:26 -0800 -  (HEAD -> master, tag: 0.5.2-beta, tag: 0.12.1, origin/master) Ignore add item if ID is 0 length.  Fixes #11 <opussf>
+* bd0c02f 2018-04-22 00:35:51 -0700 -  (HEAD -> master, tag: 0.13, origin/master, origin/develop, develop) Merge branch 'develop' (showAccount) <opussf>
+* c27632e 2018-04-22 00:35:31 -0700 -  Merge branch 'showAccount' into develop <opussf>
+* 672f1f6 2018-04-22 00:19:26 -0700 -  Clean, simple, it works. <opussf>
+* ab99f83 2018-04-22 00:15:48 -0700 -  Show change amount for account <opussf>
+* 75db09a 2018-04-21 22:14:28 -0700 -  Realizing that there is no need to show the slush values, they don't change. <opussf>
+* d3306ad 2018-04-21 19:47:35 -0700 -  Correct method to update title, use ">" instead of "->" <opussf>
+* e8bae11 2018-04-21 19:00:41 -0700 -  Initial work for showing account and slush info in UI title <opussf>
