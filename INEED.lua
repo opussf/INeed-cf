@@ -280,6 +280,7 @@ function INEED.BAG_UPDATE()
 			local gained = iHaveNum - INEED.othersNeed[itemID][INEED.realm][INEED.faction].mine
 			if gained ~= 0 then
 				INEED.othersNeed[itemID][INEED.realm][INEED.faction].mine = iHaveNum
+				INEED.othersNeed[itemID][INEED.realm][INEED.faction].updated = time()
 				if INEED_options.showGlobal or INEED_options.printProgress then
 					local progressString = string.format("-=%i/%i %s%s=-",
 							(INEED.othersNeed[itemID][INEED.realm][INEED.faction].total
@@ -314,7 +315,7 @@ function INEED.CURRENCY_DISPLAY_UPDATE()
 	for currencyID, cData in pairs( INEED_currency ) do
 		--local curName, curAmount, _, earnedThisWeek, weeklyMax, totalMax, isDiscovered = GetCurrencyInfo( currencyID )
 		local iHaveNum = select( 2, GetCurrencyInfo( currencyID ) )
-		local currencyLink = GetCurrencyLink( currencyID )
+		local currencyLink = GetCurrencyLink( currencyID, iHaveNum )
 		local gained = iHaveNum - cData.total
 		if cData.total ~= iHaveNum then
 			local progressString = string.format("%i/%i %s%s",  -- Build the progress string
@@ -727,7 +728,7 @@ function INEED.addItem( itemLink, quantity )
 	if currencyID and string.len( currencyID ) > 0 then
 		local curName, curAmount, _, earnedThisWeek, weeklyMax, totalMax, isDiscovered = GetCurrencyInfo( currencyID )
 		quantity = (totalMax > 0 and quantity > totalMax) and totalMax or quantity
-		local currencyLink = GetCurrencyLink( currencyID ) or ("currency:"..currencyID)
+		local currencyLink = GetCurrencyLink( currencyID, curAmount ) or ("currency:"..currencyID)
 		--print("I need "..quantity.." of "..itemLink)
 		if quantity > 0 then
 			if quantity > curAmount then
@@ -876,7 +877,7 @@ function INEED.showList( searchTerm )
 		table.insert( updatedItems, {
 				["updated"] = (cData.updated or cData.added or 1),
 				["displayStr"] = string.format("%i/%i x %s",
-						cData.total, cData.needed, GetCurrencyLink( currencyID ) )
+						cData.total, cData.needed, GetCurrencyLink( currencyID, 0 ) )
 		})
 	end
 
@@ -913,11 +914,15 @@ function INEED.itemIsSoulbound( itemLink )
 		INEED.scanTip:SetOwner(UIParent, "ANCHOR_NONE")
 		INEED.scanTip:ClearLines()
 		INEED.scanTip:SetHyperlink( itemLink )
-		return INEED.bindTypes[INEED.scanTip2:GetText()] or INEED.bindTypes[INEED.scanTip3:GetText()] or INEED.bindTypes[INEED.scanTip4:GetText()]
+
+		local boundType = ( scanTip2 and INEED.bindTypes[INEED.scanTip2:GetText()] ) or
+				( scanTip3 and INEED.bindTypes[INEED.scanTip3:GetText()] ) or
+				( scanTip4 and INEED.bindTypes[INEED.scanTip4:GetText()] )
+
+		return boundType
 	else
 		INEED.Print("itemIsSoulbound was called with a 'nil' value.")
 	end
-
 end
 function INEED.showFulfillList()
 	-- returns number of items you can fulfill, or nil if none
@@ -1018,24 +1023,26 @@ function INEED.remove( nameIn )
 	end
 end
 INEED.archaeologyCurrencies = {
-	1174, --  1 - Demonic
-	1173, --  2 - Highmountain Tauren
-	1172, --  3 - Highborne
-	828, --  4 - Ogre
-	821, --  5 - Draenor Clans
-	829, --  6 - Arakkoa
-	677, --  7 - Mogu
-	676, --  8 - Pandaren
-	754, --  9 - Mantid
-	399, -- 10 - Vrykul
-	385, -- 11 - Troll
-	401, -- 12 - Tol'vir
-	397, -- 13 - Orc
-	400, -- 14 - Nerubian
-	394, -- 15 - Night Elf
-	393, -- 16 - Fossil
-	398, -- 17 - Draenei
-	384, -- 18 - Dwarf
+	1535, --  1 - Drust
+	1534, --  2 - Zandalari
+	1174, --  3 - Demonic
+	1173, --  4 - Highmountain Tauren
+	1172, --  5 - Highborne
+	828,  --  6 - Ogre
+	821,  --  7 - Draenor Clans
+	829,  --  8 - Arakkoa
+	677,  --  9 - Mogu
+	676,  -- 10 - Pandaren
+	754,  -- 11 - Mantid
+	399,  -- 12 - Vrykul
+	385,  -- 13 - Troll
+	401,  -- 14 - Tol'vir
+	397,  -- 15 - Orc
+	400,  -- 16 - Nerubian
+	394,  -- 17 - Night Elf
+	393,  -- 18 - Fossil
+	398,  -- 19 - Draenei
+	384,  -- 20 - Dwarf
 }
 function INEED.archScan()
 	--print("ArchScan")
@@ -1077,6 +1084,21 @@ function INEED.updateTitleText( )
 	local accountBalanceStr = INEED_account.balance and GetCoinTextureString( INEED_account.balance )
 	INEED.UITitleText = "INEED"..( accountBalanceStr and " - "..accountBalanceStr or "" )
 	INEEDUIListFrame_TitleText:SetText( INEED.UITitleText )
+end
+
+-- Prune
+function INEED.prune( paramIn )
+	local itemID = INEED.getItemIdFromLink( paramIn )
+	if itemID and INEED_data[itemID] then
+		local linkString = select( 2, GetItemInfo( itemID ) ) or "item:"..itemID
+		INEED.Print( "Pruning "..linkString.." from:" )
+		for realm, data in pairs( INEED_data[itemID] ) do
+			for name in pairs( data ) do
+				INEED.Print( "-> "..name.."-"..realm )
+			end
+		end
+		INEED_data[itemID] = nil
+	end
 end
 
 -- Testing functions
@@ -1153,6 +1175,10 @@ INEED.CommandList = {
 				INEED.Print( "Hide: "..( INEED_options.combatHide and "ON" or "OFF" ) )
 				end,
 		["help"] = {"", "Toggle combat hide"}
+	},
+	["prune"] = {
+		["func"] = INEED.prune,
+		["help"] = { "<link>", "Prune [link] from all character." },
 	},
 	["test"] = {
 		["func"] = INEED.test,

@@ -1,8 +1,8 @@
-## Interface: 70300
+## Interface: 80200
 ## Title: INeed
-## Notes: List items into an "I need" list. 0.13
+## Notes: List items into an "I need" list. 0.18
 ## Author: opussf
-## Version: 0.13
+## Version: 0.18
 ## Description: Creates an "I need" list to share with your alts
 ## SavedVariables: INEED_data INEED_options INEED_gold INEED_unknown
 ## SavedVariablesPerCharacter: INEED_account INEED_currency

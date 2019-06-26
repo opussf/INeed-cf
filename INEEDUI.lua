@@ -89,7 +89,7 @@ function INEED.UIListOnUpdate()
 					 ["id"] = curID,
 					 ["total"] = INEED_currency[curID].total,
 					 ["needed"] = INEED_currency[curID].needed,
-					 ["linkStr"] = (GetCurrencyLink( curID ) or ("currency:"..curID))
+					 ["linkStr"] = (GetCurrencyLink( curID, INEED_currency[curID].total ) or ("currency:"..curID))
 			})
 			count = count + 1
 		end
@@ -107,6 +107,37 @@ function INEED.UIListOnUpdate()
 		})
 		count = count + 1
 	end
+	-- process othersNeed
+	for itemID in pairs( INEED.othersNeed ) do
+		if INEED.othersNeed[itemID][INEED.realm] and INEED.othersNeed[itemID][INEED.realm][INEED.faction] then
+			updatedTS = INEED.othersNeed[itemID][INEED.realm][INEED.faction].updated or nil
+			--print( "--> item:"..itemID.." for "..INEED.realm.." and "..INEED.faction.." :"..
+			--		(INEED.othersNeed[itemID][INEED.realm][INEED.faction].updated or "noUpdate") )
+		end
+		if updatedTS and ((time() - updatedTS) < (INEED_options["displayUIListDisplaySeconds"] or 0)) then
+			--print( "Maybe show "..(select( 2, GetItemInfo( itemID ) ) or "item:"..itemID ).." in list?" )
+			addThis = true
+			--[[
+			for _, displayItem in pairs( sortedDisplayItems ) do
+				if displayItem.id == itemID then addThis = false end
+			end
+			]]
+			if addThis then
+				table.insert( sortedDisplayItems,
+						{["updated"] = updatedTS,
+						 ["itemPre"] = "item:",
+						 ["id"] = itemID,
+						 ["total"] =  (INEED.othersNeed[itemID][INEED.realm][INEED.faction].mine or 0) +
+						 		(INEED.othersNeed[itemID][INEED.realm][INEED.faction].total or 0),
+						 ["needed"] =  INEED.othersNeed[itemID][INEED.realm][INEED.faction].needed,
+						 ["linkStr"] = "-->"..( select( 2, GetItemInfo( itemID ) ) or "item:"..itemID ).."<--"
+				})
+				count = count + 1
+			end
+		end
+		updatedTS = nil  -- since this is used in logic, clear the logic
+	end
+
 	-- return early, no need to sort an empty table.
 	if (count == 0 and INEEDUIListFrame:IsShown()) then
 		INEEDUIListFrame:Hide()

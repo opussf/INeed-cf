@@ -57,6 +57,7 @@ function ExportJSON()
 						os.date("%Y-%m-%dT%H:%M:%S", playerStruct.added), playerStruct.added,
 						(playerStruct.updated and os.date("%Y-%m-%dT%H:%M:%S", playerStruct.updated) or ''), playerStruct.updated or '' ) )
 				itemLink = ( playerStruct.link or (itemLink or nil) )
+				itemLink = string.gsub( itemLink, "([\"])", "\\\"" )
 			end
 		end
 		itemName = string.match( itemLink, "%[(.*)%]" )

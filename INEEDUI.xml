@@ -15,7 +15,7 @@
 	<Frame name="INEEDUIListFrame" frameStrata="LOW" toplevel="false" parent="UIParent" enableMouse="true" movable="true">
 		<Size x="250" y="12"/>
 		<Anchors>
-			<Anchor point="LEFT"/>
+			<Anchor point="CENTER"/>
 		</Anchors>
 		<Layers>
 			<Layer level="ARTWORK">
