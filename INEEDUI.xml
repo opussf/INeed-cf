@@ -40,18 +40,10 @@
 			</Layer>
 		</Layers>
 		<Scripts>
-			<OnLoad>
-				INEED.UIListOnLoad()
-			</OnLoad>
-			<OnUpdate>
-				INEED.UIListOnUpdate()
-			</OnUpdate>
-			<OnMouseDown>
-				INEED.UIListOnDragStart()
-			</OnMouseDown>
-			<OnMouseUp>
-				INEED.UIListOnDragStop()
-			</OnMouseUp>
+			<OnLoad>INEED.UIListOnLoad()</OnLoad>
+			<OnUpdate>INEED.UIListOnUpdate()</OnUpdate>
+			<OnMouseDown>INEED.UIListOnMouseDown()</OnMouseDown>
+			<OnMouseUp>INEED.UIListOnDragStop()</OnMouseUp>
 		</Scripts>
 		<!--
 		<Frames>

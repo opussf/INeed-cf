@@ -3,7 +3,8 @@
     xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\FrameXML\UI.xsd">
 
-	<CheckButton name="INEEDOptionsCheckButtonTemplate" inherits="OptionsCheckButtonTemplate" virtual="true">
+<!-- https://github.com/tomrus88/BlizzardInterfaceCode/blob/master/Interface/SharedXML/SharedUIPanelTemplates.xml -->
+	<CheckButton name="INEEDOptionsCheckButtonTemplate" inherits="InterfaceOptionsCheckButtonTemplate" virtual="true">
 		<Scripts>
 			<OnEnter>
 				GameTooltip:SetOwner(self, "ANCHOR_LEFT");
@@ -23,130 +24,182 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
+				<FontString name="$parent_ProgressHeader" inherits="GameFontNormal" text="Progress:">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parent_Title" relativePoint="BOTTOMLEFT">
+							<Offset><AbsDimension x="16" y="-10"/></Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parent_ShowWhereHeader" inherits="GameFontNormal" text="Show Where:">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parent_ProgressHeader" relativePoint="BOTTOMLEFT">
+							<Offset><AbsDimension x="16" y="-10"/></Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parent_ShowProgressHeader" inherits="GameFontNormal" text="Show:">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parent_ShowWhereHeader" relativePoint="TOPLEFT">
+							<Offset><AbsDimension x="200" y="0"/></Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parent_SuccessHeader" inherits="GameFontNormal" text="Success:">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parent_ProgressHeader" relativePoint="BOTTOMLEFT">
+							<Offset><AbsDimension x="0" y="-80"/></Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parent_SuccessWhereHeader" inherits="GameFontNormal" text="Show Where:">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parent_SuccessHeader" relativePoint="BOTTOMLEFT">
+							<Offset><AbsDimension x="16" y="-10"/></Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parent_SuccessActionsHeader" inherits="GameFontNormal" text="Actions">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parent_SuccessWhereHeader" relativePoint="TOPLEFT">
+							<Offset><AbsDimension x="200" y="0"/></Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parent_UIHeader" inherits="GameFontNormal" text="UI:">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parent_SuccessHeader" relativePoint="BOTTOMLEFT">
+							<Offset><AbsDimension x="0" y="-80"/></Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parent_AccountHeader" inherits="GameFontNormal" text="Account:">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parent_UIHeader" relativePoint="BOTTOMLEFT">
+							<Offset><AbsDimension x="0" y="-88"/></Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parent_UseAccountForHeader" inherits="GameFontNormal" text="Use account for:">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parent_AccountHeader" relativePoint="BOTTOMLEFT">
+							<Offset><AbsDimension x="16" y="-10"/></Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parent_AccountInfoHeader" inherits="GameFontNormal" text="Account (per character):">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parent_UseAccountForHeader" relativePoint="TOPLEFT">
+							<Offset><AbsDimension x="200" y="0"/></Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<!--
+				<FontString name="$parent_ShowBarsHeader" inherits="GameFontNormal" text="Show">
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parent_SuccessActionsHeader" relativePoint="LEFT"/>
+						<Anchor point="TOP" relativeTo="$parent_UIHeader" relativePoint="BOTTOM"/>
+					</Anchors>
+				</FontString>
+			-->
 			</Layer>
 		</Layers>
 		<Frames>
-			<CheckButton name="$parent_CombatHide" inherits="INEEDOptionsCheckButtonTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_Title" relativePoint="BOTTOMLEFT">
-						<Offset><AbsDimension x="0" y="-10"/></Offset>
-					</Anchor>
-				</Anchors>
-				<Scripts>
-					<OnLoad>self.tooltip = "Hide list during combat";</OnLoad>
-					<OnShow>INEED.OptionsPanel_CheckButton_OnLoad(self,"combatHide","Hide list during combat");</OnShow>
-					<PostClick>INEED.OptionsPanel_CheckButton_PostClick(self,"combatHide")</PostClick>
-				</Scripts>
-			</CheckButton>
 			<CheckButton name="$parent_ShowProgress" inherits="INEEDOptionsCheckButtonTemplate">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_CombatHide" relativePoint="BOTTOMLEFT">
-						<Offset><AbsDimension x="0" y="0"/></Offset>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ShowWhereHeader" relativePoint="BOTTOMLEFT">
 					</Anchor>
 				</Anchors>
 				<Scripts>
-					<OnLoad>self.tooltip = "Show progress in Alert pane";</OnLoad>
-					<OnShow>INEED.OptionsPanel_CheckButton_OnLoad(self,"showProgress","Show progress in the Alert pane");</OnShow>
-					<PostClick>INEED.OptionsPanel_CheckButton_PostClick(self,"showProgress")</PostClick>
+					<OnLoad>self.tooltip = "Show progress in Alert pane (Like a quest)";</OnLoad>
+					<OnShow>INEED.OptionsPanel_CheckButton_OnLoad(self,"showProgress","Alert pane");</OnShow>
+					<OnClick>INEED.OptionsPanel_CheckButton_OnClick(self,"showProgress")</OnClick>
 				</Scripts>
 			</CheckButton>
-			<CheckButton name="$parent_ShowGlobalProgress" inherits="INEEDOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_PrintProgress" inherits="INEEDOptionsCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_ShowProgress" relativePoint="BOTTOMLEFT">
 						<Offset><AbsDimension x="0" y="0"/></Offset>
 					</Anchor>
 				</Anchors>
 				<Scripts>
-					<OnLoad>self.tooltip = "Show progress if others need an item";</OnLoad>
-					<OnShow>INEED.OptionsPanel_CheckButton_OnLoad(self,"showGlobal","Show progress if others need an item");</OnShow>
-					<PostClick>INEED.OptionsPanel_CheckButton_PostClick(self,"showGlobal")</PostClick>
+					<OnLoad>self.tooltip = "Print progress in general chat frame";</OnLoad>
+					<OnShow>INEED.OptionsPanel_CheckButton_OnLoad(self,"printProgress","General chat frame");</OnShow>
+					<OnClick>INEED.OptionsPanel_CheckButton_OnClick(self,"printProgress")</OnClick>
 				</Scripts>
 			</CheckButton>
-			<CheckButton name="$parent_PrintProgress" inherits="INEEDOptionsCheckButtonTemplate">
+
+			<CheckButton name="$parent_ShowGlobalProgress" inherits="INEEDOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ShowProgressHeader" relativePoint="BOTTOMLEFT">
+						<Offset><AbsDimension x="0" y="0"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>self.tooltip = "Show progress if others need an item (-=item=-)";</OnLoad>
+					<OnShow>INEED.OptionsPanel_CheckButton_OnLoad(self,"showGlobal","If others need an item");</OnShow>
+					<OnClick>INEED.OptionsPanel_CheckButton_OnClick(self,"showGlobal")</OnClick>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parent_IncludeChange" inherits="INEEDOptionsCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_ShowGlobalProgress" relativePoint="BOTTOMLEFT">
 						<Offset><AbsDimension x="0" y="0"/></Offset>
 					</Anchor>
 				</Anchors>
 				<Scripts>
-					<OnLoad>self.tooltip = "Print progress in general chat frame";</OnLoad>
-					<OnShow>INEED.OptionsPanel_CheckButton_OnLoad(self,"printProgress","Print progress in general chat frame");</OnShow>
-					<PostClick>INEED.OptionsPanel_CheckButton_PostClick(self,"printProgress")</PostClick>
-				</Scripts>
-			</CheckButton>
-			<CheckButton name="$parent_IncludeChange" inherits="INEEDOptionsCheckButtonTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_PrintProgress" relativePoint="BOTTOMLEFT">
-						<Offset><AbsDimension x="30" y="0"/></Offset>
-					</Anchor>
-				</Anchors>
-				<Scripts>
 					<OnLoad>self.tooltip = "Include amount changed when annoucing progress";</OnLoad>
-					<OnShow>INEED.OptionsPanel_CheckButton_OnLoad(self,"includeChange","Include amount changed with progress");</OnShow>
-					<PostClick>INEED.OptionsPanel_CheckButton_PostClick(self,"includeChange")</PostClick>
+					<OnShow>INEED.OptionsPanel_CheckButton_OnLoad(self,"includeChange","Amount changed");</OnShow>
+					<OnClick>INEED.OptionsPanel_CheckButton_OnClick(self,"includeChange")</OnClick>
 				</Scripts>
 			</CheckButton>
+
 			<CheckButton name="$parent_AlertOnSuccess" inherits="INEEDOptionsCheckButtonTemplate">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_PrintProgress" relativePoint="BOTTOMLEFT">
-						<Offset><AbsDimension x="0" y="-30"/></Offset>
-					</Anchor>
+					<Anchor point="TOPLEFT" relativeTo="$parent_SuccessWhereHeader" relativePoint="BOTTOMLEFT"/>
 				</Anchors>
 				<Scripts>
-					<OnLoad>self.tooltip = "Show alert on success"</OnLoad>
-					<OnShow>INEED.OptionsPanel_CheckButton_OnLoad( self, "showSuccess", "Show alert on Success" )</OnShow>
-					<PostClick>INEED.OptionsPanel_CheckButton_PostClick( self, "showSuccess" )</PostClick>
+					<OnLoad>self.tooltip = "Show alert on success (like Raid Warning)"</OnLoad>
+					<OnShow>INEED.OptionsPanel_CheckButton_OnLoad( self, "showSuccess", "Alert pane." )</OnShow>
+					<OnClick>INEED.OptionsPanel_CheckButton_OnClick( self, "showSuccess" )</OnClick>
 				</Scripts>
 			</CheckButton>
 			<CheckButton name="$parent_PrintSuccess" inherits="INEEDOptionsCheckButtonTemplate">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_AlertOnSuccess" relativePoint="BOTTOMLEFT">
-						<Offset><AbsDimension x="0" y="0"/></Offset>
-					</Anchor>
+					<Anchor point="TOPLEFT" relativeTo="$parent_AlertOnSuccess" relativePoint="BOTTOMLEFT"/>
 				</Anchors>
 				<Scripts>
 					<OnLoad>self.tooltip = "Print success in general chat frame";</OnLoad>
-					<OnShow>INEED.OptionsPanel_CheckButton_OnLoad(self,"printSuccess","Print success in general chat frame");</OnShow>
-					<PostClick>INEED.OptionsPanel_CheckButton_PostClick(self,"printSuccess")</PostClick>
+					<OnShow>INEED.OptionsPanel_CheckButton_OnLoad(self,"printSuccess","General chat frame");</OnShow>
+					<OnClick>INEED.OptionsPanel_CheckButton_OnClick(self,"printSuccess")</OnClick>
 				</Scripts>
 			</CheckButton>
+
 			<CheckButton name="$parent_SuccessScreenShot" inherits="INEEDOptionsCheckButtonTemplate">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_PrintSuccess" relativePoint="BOTTOMLEFT">
+					<Anchor point="TOPLEFT" relativeTo="$parent_SuccessActionsHeader" relativePoint="BOTTOMLEFT">
 						<Offset><AbsDimension x="0" y="0"/></Offset>
 					</Anchor>
 				</Anchors>
 				<Scripts>
 					<OnLoad>self.tooltip = "Take a screenshot on success"</OnLoad>
-					<OnShow>INEED.OptionsPanel_CheckButton_OnLoad( self, "doScreenShot", "Take a screenshot on success")</OnShow>
-					<PostClick>INEED.OptionsPanel_CheckButton_PostClick( self, "doScreenShot" )</PostClick>
-				</Scripts>
-			</CheckButton>
-			<CheckButton name="$parent_AudibleAlert" inherits="INEEDOptionsCheckButtonTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_SuccessScreenShot" relativePoint="BOTTOMLEFT">
-						<Offset><AbsDimension x="0" y="-10"/></Offset>
-					</Anchor>
-				</Anchors>
-				<Scripts>
-					<OnLoad>self.tooltip = "Make a noise on success"</OnLoad>
-					<OnShow>INEED.OptionsPanel_CheckButton_OnLoad( self, "audibleSuccess", "Play alert on Success" )</OnShow>
-					<PostClick>INEED.OptionsPanel_CheckButton_PostClick( self, "audibleSuccess" )</PostClick>
+					<OnShow>INEED.OptionsPanel_CheckButton_OnLoad( self, "doScreenShot", "Screenshot")</OnShow>
+					<OnClick>INEED.OptionsPanel_CheckButton_OnClick( self, "doScreenShot" )</OnClick>
 				</Scripts>
 			</CheckButton>
 			<CheckButton name="$parent_DoEmote" inherits="INEEDOptionsCheckButtonTemplate">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_AudibleAlert" relativePoint="BOTTOMLEFT">
-						<Offset><AbsDimension x="30" y="-5"/></Offset>
+					<Anchor point="TOPLEFT" relativeTo="$parent_SuccessScreenShot" relativePoint="BOTTOMLEFT">
+						<Offset><AbsDimension x="0" y="0"/></Offset>
 					</Anchor>
 				</Anchors>
 				<Scripts>
 					<OnLoad>self.tooltip = "Perform an emote on success"</OnLoad>
 					<OnShow>INEED.OptionsPanel_CheckButton_OnLoad( self, "doEmote", "Use Emote:" )</OnShow>
-					<PostClick>INEED.OptionsPanel_CheckButton_PostClick( self, "doEmote" )</PostClick>
+					<OnClick>INEED.OptionsPanel_CheckButton_OnClick( self, "doEmote" )</OnClick>
 				</Scripts>
 			</CheckButton>
-			<EditBox name="$parent_DoEmoteEditBox" inherits="InputBoxTemplate">
+			<EditBox name="$parent_DoEmoteEditBox" inherits="InputBoxTemplate" autoFocus="false">
 				<Size x="100" y="16"/>
 				<Anchors>
 					<Anchor point="LEFT" relativeTo="$parent_DoEmote" relativePoint="RIGHT">
@@ -154,59 +207,381 @@
 					</Anchor>
 				</Anchors>
 				<Scripts>
-					<OnLoad>self:SetAutoFocus( false )</OnLoad>
 					<OnShow>INEED.OptionsPanel_EditBox_OnLoad( self, "emote" )</OnShow>
 					<OnTextChanged>INEED.OptionsPanel_EditBox_TextChanged( self, "emote" )</OnTextChanged>
 				</Scripts>
 			</EditBox>
-			<Button name="$parent_TestEmoteButton" inherits="UIPanelButtonTemplate" text="Test Alert">
+			<Button name="$parent_TestEmoteButton" inherits="UIPanelButtonTemplate" text="Test Emote">
 				<Size>
 					<AbsDimension x="120" y="24"/>
 				</Size>
 				<Anchors>
 					<Anchor point="LEFT" relativeTo="$parent_DoEmoteEditBox" relativePoint="RIGHT" >
-						<Offset>
-							<AbsDimension x="10" y="0" />
-						</Offset>
+						<Offset><AbsDimension x="10" y="0" /></Offset>
 					</Anchor>
 				</Anchors>
 				<Scripts>
 					<OnClick>
 						local emote = _G[self:GetParent():GetName() .."_DoEmoteEditBox"]:GetText();
-						local sound = _G[self:GetParent():GetName() .."_PlaySoundEditBox"]:GetText();
 						if _G[self:GetParent():GetName() .."_DoEmote"]:GetChecked() then
 							DoEmote( emote )
-						end
-						if _G[self:GetParent():GetName() .."_PlaySound"]:GetChecked() then
-							PlaySoundFile( sound )
 						end
 					</OnClick>
 				</Scripts>
 			</Button>
-			<CheckButton name="$parent_PlaySound" inherits="INEEDOptionsCheckButtonTemplate">
+
+			<CheckButton name="$parent_CombatHide" inherits="INEEDOptionsCheckButtonTemplate">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_DoEmote" relativePoint="BOTTOMLEFT">
-						<Offset><AbsDimension x="0" y="-5"/></Offset>
+					<Anchor point="TOPLEFT" relativeTo="$parent_UIHeader" relativePoint="BOTTOMLEFT">
+						<Offset><AbsDimension x="16" y="0"/></Offset>
 					</Anchor>
 				</Anchors>
 				<Scripts>
-					<OnLoad>self.tooltip = "Play a sound file on success"</OnLoad>
-					<OnShow>INEED.OptionsPanel_CheckButton_OnLoad( self, "playSoundFile", "Play Sound:" )</OnShow>
+					<OnLoad>self.tooltip = "Hide in combat";</OnLoad>
+					<OnShow>INEED.OptionsPanel_CheckButton_OnLoad(self,"combatHide","Hide list during combat");</OnShow>
+					<OnClick>INEED.OptionsPanel_CheckButton_OnClick(self,"combatHide")</OnClick>
 				</Scripts>
 			</CheckButton>
-			<EditBox name="$parent_PlaySoundEditBox" inherits="InputBoxTemplate">
-				<Size x="350" y="16"/>
+			<EditBox name="$parent_DisplayBarCount" inherits="NumericInputSpinnerTemplate" letters="4">
 				<Anchors>
-					<Anchor point="LEFT" relativeTo="$parent_PlaySound" relativePoint="RIGHT">
-						<Offset x="100" y="0" />
+					<Anchor point="LEFT" relativeTo="$parent_DoEmoteEditBox" relativePoint="LEFT"/>
+					<Anchor point="TOP"  relativeTo="$parent_CombatHide" relativePoint="TOP"/>
+				</Anchors>
+				<Scripts>
+					<OnLoad>self:SetAutoFocus( false )</OnLoad>
+					<OnTextChanged>INEED.OptionsPanel_EditBox_TextChanged( self, "barCount" )</OnTextChanged>
+				</Scripts>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parent_DisplayForPreText" inherits="GameFontWhite" text="Show">
+							<Anchors>
+								<Anchor point="LEFT">
+									<Offset><AbsDimension x="-60" y="-2"/></Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+						<FontString name="$parent_DisplayForPostText" inherits="GameFontWhite" text="bars">
+							<Anchors>
+								<Anchor point="TOPLEFT">
+									<Offset><AbsDimension x="60" y="-2"/></Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</EditBox>
+			<EditBox name="$parent_DisplayUpdate_Days" inherits="InputBoxTemplate" letters="4" numeric="true" autoFocus="false">
+				<Size x="36" y="16"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_CombatHide" relativePoint="BOTTOMLEFT">
+						<Offset><AbsDimension x="200" y="0"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnShow>INEED.OptionsPanel_Duration_OnShow( self, "displayUIListDisplaySeconds" )</OnShow>
+					<OnTextChanged>INEED.OptionsPanel_Duration_TextChanged( self, "displayUIListDisplaySeconds" )</OnTextChanged>
+					<!--
+					<OnEditFocusLost>INEED.OptionsPanel_Duration_OnShow( self, "displayUIListDisplaySeconds" )</OnEditFocusLost>
+					-->
+				</Scripts>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parent_DisplayUpdate_Days_PreText" inherits="GameFontWhite" text="Display Updated items for:">
+							<Anchors>
+								<Anchor point="RIGHT" relativePoint="LEFT">
+									<Offset><AbsDimension x="-16" y="0"/></Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+						<FontString name="$parent_DisplayUpdate_Days_PostText" inherits="GameFontWhite" text="days">
+							<Anchors>
+								<Anchor point="LEFT" relativePoint="RIGHT">
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</EditBox>
+			<EditBox name="$parent_DisplayUpdate_Hours" inherits="InputBoxTemplate" letters="2" numeric="true" autoFocus="false">
+				<Size x="20" y="16"/>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent_DisplayUpdate_Days" relativePoint="RIGHT">
+						<Offset><AbsDimension x="40" y="0"/></Offset>
 					</Anchor>
 				</Anchors>
 				<Scripts>
 					<OnLoad>self:SetAutoFocus( false )</OnLoad>
-					<OnShow>INEED.OptionsPanel_EditBox_OnLoad( self, "soundFile" )</OnShow>
-					<OnTextChanged>INEED.OptionsPanel_EditBox_TextChanged( self, "soundFile" )</OnTextChanged>
+					<OnShow>INEED.OptionsPanel_Duration_OnShow( self, "displayUIListDisplaySeconds" )</OnShow>
+					<OnTextChanged>INEED.OptionsPanel_Duration_TextChanged( self, "displayUIListDisplaySeconds" )</OnTextChanged>
 				</Scripts>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parent_DisplayUpdate_Hours_PostText" inherits="GameFontWhite" text="hours">
+							<Anchors>
+								<Anchor point="LEFT" relativePoint="RIGHT">
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
 			</EditBox>
+			<EditBox name="$parent_DisplayUpdate_Minutes" inherits="InputBoxTemplate" letters="2" numeric="true" autoFocus="false">
+				<Size x="20" y="16"/>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent_DisplayUpdate_Hours" relativePoint="RIGHT">
+						<Offset><AbsDimension x="40" y="0"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>self:SetAutoFocus( false )</OnLoad>
+					<OnShow>INEED.OptionsPanel_Duration_OnShow( self, "displayUIListDisplaySeconds" )</OnShow>
+					<OnTextChanged>INEED.OptionsPanel_Duration_TextChanged( self, "displayUIListDisplaySeconds" )</OnTextChanged>
+				</Scripts>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parent_DisplayUpdate_Minutes_PostText" inherits="GameFontWhite" text="mins">
+							<Anchors>
+								<Anchor point="LEFT" relativePoint="RIGHT">
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</EditBox>
+			<EditBox name="$parent_DisplayUpdate_Seconds" inherits="InputBoxTemplate" letters="2" numeric="true" autoFocus="false">
+				<Size x="20" y="16"/>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent_DisplayUpdate_Minutes" relativePoint="RIGHT">
+						<Offset><AbsDimension x="40" y="0"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>self:SetAutoFocus( false )</OnLoad>
+					<OnShow>INEED.OptionsPanel_Duration_OnShow( self, "displayUIListDisplaySeconds" )</OnShow>
+					<OnTextChanged>INEED.OptionsPanel_Duration_TextChanged( self, "displayUIListDisplaySeconds" )</OnTextChanged>
+				</Scripts>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parent_DisplayUpdate_Seconds_PostText" inherits="GameFontWhite" text="seconds">
+							<Anchors>
+								<Anchor point="LEFT" relativePoint="RIGHT">
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</EditBox>
+
+			<CheckButton name="$parent_FillOldest" inherits="INEEDOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_CombatHide" relativePoint="BOTTOMLEFT">
+						<Offset><AbsDimension x="0" y="-24"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>self.tooltip = "Show oldest items in the list for an additional amount of time."</OnLoad>
+					<OnShow>INEED.OptionsPanel_CheckButton_OnLoad(self,"fillBars","Show Oldest Items")</OnShow>
+					<OnClick>INEED.OptionsPanel_CheckButton_OnClick(self,"fillBars")</OnClick>
+				</Scripts>
+			</CheckButton>
+			<EditBox name="$parent_DisplayFillbars_Days" inherits="InputBoxTemplate" letters="4" numeric="true" autoFocus="false">
+				<Size x="36" y="16"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_DisplayUpdate_Days" relativePoint="BOTTOMLEFT">
+						<Offset><AbsDimension x="0" y="-16"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnShow>INEED.OptionsPanel_Duration_OnShow( self, "displayUIListFillbarsSeconds" )</OnShow>
+					<OnTextChanged>INEED.OptionsPanel_Duration_TextChanged( self, "displayUIListFillbarsSeconds" )</OnTextChanged>
+				</Scripts>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parent_DisplayFillbars_Days_PreText" inherits="GameFontWhite" text="For:">
+							<Anchors>
+								<Anchor point="RIGHT" relativePoint="LEFT">
+									<Offset><AbsDimension x="-16" y="0"/></Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+						<FontString name="$parent_DisplayFillbars_Days_PostText" inherits="GameFontWhite" text="days">
+							<Anchors>
+								<Anchor point="LEFT" relativePoint="RIGHT">
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</EditBox>
+			<EditBox name="$parent_DisplayFillbars_Hours" inherits="InputBoxTemplate" letters="2" numeric="true" autoFocus="false">
+				<Size x="20" y="16"/>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent_DisplayFillbars_Days" relativePoint="RIGHT">
+						<Offset><AbsDimension x="40" y="0"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>self:SetAutoFocus( false )</OnLoad>
+					<OnShow>INEED.OptionsPanel_Duration_OnShow( self, "displayUIListFillbarsSeconds" )</OnShow>
+					<OnTextChanged>INEED.OptionsPanel_Duration_TextChanged( self, "displayUIListFillbarsSeconds" )</OnTextChanged>
+				</Scripts>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parent_DisplayFillbars_Hours_PostText" inherits="GameFontWhite" text="hours">
+							<Anchors>
+								<Anchor point="LEFT" relativePoint="RIGHT">
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</EditBox>
+			<EditBox name="$parent_DisplayFillbars_Minutes" inherits="InputBoxTemplate" letters="2" numeric="true" autoFocus="false">
+				<Size x="20" y="16"/>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent_DisplayFillbars_Hours" relativePoint="RIGHT">
+						<Offset><AbsDimension x="40" y="0"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>self:SetAutoFocus( false )</OnLoad>
+					<OnShow>INEED.OptionsPanel_Duration_OnShow( self, "displayUIListFillbarsSeconds" )</OnShow>
+					<OnTextChanged>INEED.OptionsPanel_Duration_TextChanged( self, "displayUIListFillbarsSeconds" )</OnTextChanged>
+				</Scripts>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parent_DisplayFillbars_Minutes_PostText" inherits="GameFontWhite" text="mins">
+							<Anchors>
+								<Anchor point="LEFT" relativePoint="RIGHT">
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</EditBox>
+			<EditBox name="$parent_DisplayFillbars_Seconds" inherits="InputBoxTemplate" letters="2" numeric="true" autoFocus="false">
+				<Size x="20" y="16"/>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent_DisplayFillbars_Minutes" relativePoint="RIGHT">
+						<Offset><AbsDimension x="40" y="0"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>self:SetAutoFocus( false )</OnLoad>
+					<OnShow>INEED.OptionsPanel_Duration_OnShow( self, "displayUIListFillbarsSeconds" )</OnShow>
+					<OnTextChanged>INEED.OptionsPanel_Duration_TextChanged( self, "displayUIListFillbarsSeconds" )</OnTextChanged>
+				</Scripts>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parent_DisplayFillbars_Seconds_PostText" inherits="GameFontWhite" text="seconds">
+							<Anchors>
+								<Anchor point="LEFT" relativePoint="RIGHT">
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</EditBox>
+
+			<CheckButton name="$parent_AutoRepair" inherits="INEEDOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_UseAccountForHeader" relativePoint="BOTTOMLEFT"/>
+				</Anchors>
+				<Scripts>
+					<OnLoad>self.tooltip = "Use account to auto perform repairs";</OnLoad>
+					<OnShow>INEED.OptionsPanel_CheckButton_OnLoad(self,"autoRepair","Auto Repair");</OnShow>
+					<OnClick>INEED.OptionsPanel_CheckButton_OnClick(self,"autoRepair")</OnClick>
+				</Scripts>
+			</CheckButton>
+
+			<EditBox name="$parent_AccountPercent" inherits="InputBoxTemplate" letters="5" autoFocus="false">
+				<Size x="44" y="16"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_AccountInfoHeader" relativePoint="BOTTOMLEFT">
+						<Offset><AbsDimension x="0" y="-4"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnShow>INEED.OptionsPanel_Account_EditBox_OnShow( self, "percent" )</OnShow>
+					<OnTextChanged>INEED.OptionsPanel_Account_EditBox_TextChanged( self, "percent" )</OnTextChanged>
+				</Scripts>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parent_AccountPercent_PreText" inherits="GameFontWhite" text="Slush">
+							<Anchors>
+								<Anchor point="RIGHT" relativePoint="LEFT">
+									<Offset><AbsDimension x="-16" y="0"/></Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+						<FontString name="$parent_AccountPercent_PostText" inherits="GameFontWhite" text="%">
+							<Anchors>
+								<Anchor point="LEFT" relativePoint="RIGHT">
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</EditBox>
+			<Frame name="$parent_Money_AccountMax" inherits="MoneyInputFrameTemplate">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent_AccountPercent" relativePoint="RIGHT">
+						<Offset><AbsDimension x="64" y="0"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parent_Money_AccountMax_PreText" inherits="GameFontWhite" text="Max:">
+							<Anchors>
+								<Anchor point="RIGHT" relativePoint="LEFT">
+									<Offset><AbsDimension x="-16" y="0"/></Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+			<Frame name="$parent_Money_AccountCurrent" inherits="MoneyInputFrameTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_Money_AccountMax" relativePoint="BOTTOMLEFT">
+						<Offset><AbsDimension x="0" y="-8"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parent_Money_AccountCurrent_PreText" inherits="GameFontWhite" text="Current:">
+							<Anchors>
+								<Anchor point="RIGHT" relativePoint="LEFT">
+									<Offset><AbsDimension x="-16" y="0"/></Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+<!--
+
+
+
+			<Slider name="$parent_MaxBarSlider" inherits="UISliderTemplateWithLabels" minValue="1" maxValue="10" valueStep="1">
+				<Size x="220" y="16"/>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent_Title" relativePoint="LEFT"/>
+					<Anchor point="TOP" relativeTo="$parent_PlaySound" relativePoint="BOTTOM">
+						<Offset x="100" y="-15" />
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						_G[self:GetName().."Text"]:SetText( "Maximum Bars" );
+						_G[self:GetName().."High"]:SetText( "10" );
+						_G[self:GetName().."Low" ]:SetText( "1" );
+					</OnLoad>
+					<OnValueChanged>INEED.OptionsPanel_Slider_ValueChanged( self, "barCount" )</OnValueChanged>
+				</Scripts>
+			</Slider>
+-->
+
 		</Frames>
 		<Scripts>
 			<OnLoad>

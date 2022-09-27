@@ -1,6 +1,7 @@
-INEED_MSG_ADDONNAME = "INeed";
-INEED_MSG_VERSION   = GetAddOnMetadata(INEED_MSG_ADDONNAME,"Version");
-INEED_MSG_AUTHOR    = "opussf";
+INEED_SLUG, INEED = ...
+INEED_MSG_ADDONNAME = GetAddOnMetadata( INEED_SLUG, "Title" )
+INEED_MSG_VERSION   = GetAddOnMetadata( INEED_SLUG, "Version" )
+INEED_MSG_AUTHOR    = GetAddOnMetadata( INEED_SLUG, "Author" )
 
 -- Colours
 COLOR_RED = "|cffff0000";
@@ -14,7 +15,6 @@ COLOR_GOLD = "|cffcfb52b";
 COLOR_NEON_BLUE = "|cff4d4dff";
 COLOR_END = "|r";
 
-INEED = {}
 INEED_data = {}
 INEED_currency = {}
 INEED_account = {}
@@ -44,6 +44,7 @@ function INEED.Print( msg, showName)
 	end
 	DEFAULT_CHAT_FRAME:AddMessage( msg )
 end
+-- https://wowpedia.fandom.com/wiki/AddOn_loading_process
 function INEED.OnLoad()
 	SLASH_INEED1 = "/IN"
 	SLASH_INEED2 = "/INEED"
@@ -192,25 +193,35 @@ function INEED.MAIL_INBOX_UPDATE()
 	end
 end
 --------------
-function INEED.ADDON_LOADED()
-	-- Unregister the event for this method.
-	INEED_Frame:UnregisterEvent("ADDON_LOADED")
+function INEED.ADDON_LOADED( _, arg1 )
+	if( arg1 == INEED_SLUG ) then
+		-- Unregister the event for this method.
+		INEED_Frame:UnregisterEvent("ADDON_LOADED")
 
-	-- Setup needed variables
-	INEED.name = UnitName("player")
-	INEED.realm = GetRealmName()
-	INEED.faction = UnitFactionGroup("player")
+		-- Setup needed variables
+		INEED.name = UnitName("player")
+		INEED.realm = GetRealmName()
+		INEED.faction = UnitFactionGroup("player")
 
-	-- Setup game settings
-	GameTooltip:HookScript("OnTooltipSetItem", INEED.hookSetItem)
-	ItemRefTooltip:HookScript("OnTooltipSetItem", INEED.hookSetItem)
-	--INEED.Orig_GameTooltip_SetCurrencyToken = GameTooltip.SetCurrencyToken  -- lifted from Altaholic (thanks guys)
-	--GameTooltip.SetCurrencyToken = INEED.hookSetCurrencyToken
+		-- Setup game settings
+		GameTooltip:HookScript("OnTooltipSetItem", INEED.hookSetItem)
+		ItemRefTooltip:HookScript("OnTooltipSetItem", INEED.hookSetItem)
+		--INEED.Orig_GameTooltip_SetCurrencyToken = GameTooltip.SetCurrencyToken  -- lifted from Altaholic (thanks guys)
+		--GameTooltip.SetCurrencyToken = INEED.hookSetCurrencyToken
 
-	-- Load Options panel
-	INEED.OptionsPanel_Reset()
+		-- Load Options panel
+		INEED.OptionsPanel_Reset()
+		-- Clear unknown list
+		for ts, _ in pairs(INEED_unknown) do
+			if time()-ts > 86400 then
+				INEED_unknown[ts] = nil
+			end
+		end
+		INEED.oldest()  -- @TODO, make this an option.
 
-	INEED.Print("Loaded")
+		INEED.variables_loaded = true
+		INEED.Print( INEED_MSG_VERSION .. " Loaded" )
+	end
 end
 function INEED.MAIL_SHOW()
 	INEED.Print("Others on this server need:")
@@ -314,8 +325,14 @@ function INEED.CURRENCY_DISPLAY_UPDATE()
 	local itemFulfilled = false
 	for currencyID, cData in pairs( INEED_currency ) do
 		--local curName, curAmount, _, earnedThisWeek, weeklyMax, totalMax, isDiscovered = GetCurrencyInfo( currencyID )
-		local iHaveNum = select( 2, GetCurrencyInfo( currencyID ) )
-		local currencyLink = GetCurrencyLink( currencyID, iHaveNum )
+		--local localName, isHeader, isHeaderExpanded, isTypeUnused, isShowInBackpack, quantity, iconFileID, maxQuantity,
+		--      canEarnPerWeek, quantityEarnedThisWeek, isTradeable, quality, maxWeeklyQuantity, discovered
+		--      = C_CurrencyInfo.GetCurrencyInfo( CurrencyID )
+		--      = C_CurrencyInfo.GetCurrencyInfoFromLink( ItemLink )
+		--local iHaveNum = select( 2, GetCurrencyInfo( currencyID ) )
+		local curInfo = C_CurrencyInfo.GetCurrencyInfo( tonumber( currencyID ) )
+		local iHaveNum = curInfo["quantity"]
+		local currencyLink = C_CurrencyInfo.GetCurrencyLink( tonumber( currencyID ), iHaveNum )
 		local gained = iHaveNum - cData.total
 		if cData.total ~= iHaveNum then
 			local progressString = string.format("%i/%i %s%s",  -- Build the progress string
@@ -408,6 +425,19 @@ function INEED.MERCHANT_SHOW()
 			end
 		end
 	end
+	if( INEED_options.autoRepair ) then
+		repairAllCost, canRepair = GetRepairAllCost()
+		if( repairAllCost > 0 ) then  -- need to repair
+			RepairAllItems( true ) -- True to use guild repairAllCost
+		end
+		repairAllCost, canRepair = GetRepairAllCost()
+		if( INEED_account.balance and  repairAllCost > 0 and repairAllCost <= INEED_account.balance ) then
+			RepairAllItems()
+			INEED_account.balance = INEED_account.balance - repairAllCost
+			purchaseAmount = purchaseAmount + repairAllCost
+			INEED.Print( "Repair Items: "..GetCoinTextureString( repairAllCost ) )
+		end
+	end
 	if purchaseAmount > 0 then
 		INEED.Print("==========================")
 		INEED.Print("Total:   "..GetCoinTextureString(purchaseAmount) )
@@ -424,7 +454,7 @@ function INEED.PLAYER_MONEY()
 	-- PLAYER_MONEY has changed
 	if INEED_account.percent then  -- look to see if need to add to balance
 		local change = GetMoney() - (INEED_account.current or 0)
-		change = change * INEED_account.percent
+		change = change * ( INEED_account.percent / 100 )
 		if ((not INEED_account.max) or ((INEED_account.balance or 0) < INEED_account.max)) and change>0 then
 			INEED_account.balance = (INEED_account.balance or 0) + change
 			if INEED_account.max and (INEED_account.balance > INEED_account.max) then
@@ -726,23 +756,29 @@ function INEED.addItem( itemLink, quantity )
 	end
 	local currencyID = INEED.getCurrencyIdFromLink( itemLink )
 	if currencyID and string.len( currencyID ) > 0 then
-		local curName, curAmount, _, earnedThisWeek, weeklyMax, totalMax, isDiscovered = GetCurrencyInfo( currencyID )
-		quantity = (totalMax > 0 and quantity > totalMax) and totalMax or quantity
-		local currencyLink = GetCurrencyLink( currencyID, curAmount ) or ("currency:"..currencyID)
+		local curInfo = C_CurrencyInfo.GetCurrencyInfo( tonumber( currencyID ) )
+		local iHaveNum = curInfo["quantity"]
+		local totalMax = curInfo["maxQuantity"]
+		iHaveNum = (totalMax > 0 and quantity > totalMax) and totalMax or iHaveNum
+
+		INEED_unknown[time()] = "currencyID: ".. tonumber( currencyID or 0 ).. "curAmount : ".. ( iHaveNum or "nil" )
+		--INEED.Print( "GetCurrencyLink( "..tonumber( currencyID )..", "..iHaveNum.." )" )
+
+		local currencyLink = C_CurrencyInfo.GetCurrencyLink( tonumber( currencyID ), iHaveNum ) or ("currency:"..currencyID)
 		--print("I need "..quantity.." of "..itemLink)
 		if quantity > 0 then
-			if quantity > curAmount then
+			if quantity > iHaveNum then
 				INEED.Print( string.format( "Needing: %i/%i %s (currency:%s)",
-						curAmount, quantity, currencyLink, currencyID ) )
+						iHaveNum, quantity, currencyLink, currencyID ) )
 				INEED_currency[currencyID] = INEED_currency[currencyID] or {}
 
-				INEED_currency[currencyID] = INEED.addItemToTable( INEED_currency[currencyID], quantity, curAmount, false)
+				INEED_currency[currencyID] = INEED.addItemToTable( INEED_currency[currencyID], quantity, iHaveNum, false)
 				INEED_currency[currencyID]['name'] = curName -- custom field
 
 			else
 				--local currencyLink = GetCurrencyLink( currencyID )
 				INEED.Print( string.format( COLOR_RED.."-------"..COLOR_END..": %s %i / %i",
-						currencyLink, curAmount, quantity ) )
+						currencyLink, iHaveNum, quantity ) )
 
 			end
 		elseif quantity == 0 then
@@ -877,7 +913,7 @@ function INEED.showList( searchTerm )
 		table.insert( updatedItems, {
 				["updated"] = (cData.updated or cData.added or 1),
 				["displayStr"] = string.format("%i/%i x %s",
-						cData.total, cData.needed, GetCurrencyLink( currencyID, 0 ) )
+						cData.total, cData.needed, C_CurrencyInfo.GetCurrencyLink( tonumber( currencyID ), 0 ) )
 		})
 	end
 
@@ -1053,7 +1089,7 @@ function INEED.archScan()
 		if INEED.archaeologyCurrencies[i] then
 
 			local raceName, raceTexture, raceItemID, numFragmentsCollected, numFragmentsRequired, maxFragments = GetArchaeologyRaceInfo( i )
-			if select( 7, GetCurrencyInfo(INEED.archaeologyCurrencies[i]) ) then
+			if ( C_CurrencyInfo.GetCurrencyInfo( tonumber( INEED.archaeologyCurrencies[i]) )["discovered"] ) then
 				INEED.addItem( "currency:"..INEED.archaeologyCurrencies[i], numFragmentsRequired )
 			end
 		end
@@ -1072,12 +1108,12 @@ function INEED.slush( strIn )
 		--print( "Slush( "..(percent or "nil")..", "..(maxValue or "nil").." )" )
 		--print( percent.."::"..(maxValue or "nil").." -> "..value.."::"..(modify and "true" or "false") )
 
-		INEED_account.percent = percent / 100
+		INEED_account.percent = tonumber( percent )
 		INEED_account.max = (modify) and (INEED_account.max and INEED_account.max + maxValue) or maxValue
 		INEED_account.current = GetMoney()
 	end
 	INEED.updateTitleText( )
-	INEED.Print( "Slush: "..(INEED_account.percent and ((INEED_account.percent * 100).."%") or "")..
+	INEED.Print( "Slush: "..(INEED_account.percent and ((INEED_account.percent).."%") or "")..
 			(INEED_account.max and (" max: "..GetCoinTextureString(INEED_account.max)) or "") )
 end
 function INEED.updateTitleText( )
@@ -1098,7 +1134,15 @@ function INEED.prune( paramIn )
 			end
 		end
 		INEED_data[itemID] = nil
+	elseif itemID and not INEED_options[itemID] then
+		INEED.Print( "Seems like no one needs this item.")
+	elseif not itemID then
+		INEED.Print( "This cannot be pruned." )
 	end
+end
+function INEED.oldest()
+	INEED.highestUpdatedTS = time() + INEED_options["displayUIListFillbarsSeconds"]
+	INEEDUIListFrame:Show()
 end
 
 -- Testing functions
@@ -1179,6 +1223,10 @@ INEED.CommandList = {
 	["prune"] = {
 		["func"] = INEED.prune,
 		["help"] = { "<link>", "Prune [link] from all character." },
+	},
+	["oldest"] = {
+		["func"] = INEED.oldest,
+		["help"] = { "", "Show the oldest needed items."}
 	},
 	["test"] = {
 		["func"] = INEED.test,
