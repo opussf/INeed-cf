@@ -1,7 +1,3 @@
-Changes since 0.22.1..
+Changes since 0.22.2..
 
-* 8a77e7c 2022-09-25 16:25:06 -0700 -  (HEAD -> master, tag: 0.22.1, origin/master, origin/develop, develop) Merge pull request #20 from opussf/expandedOptions <opussf>
-* ddd5003 2022-09-25 16:02:23 -0700 -  Fixes #19: Should fix losing config settings <opussf>
-* 1bb2751 2022-09-03 21:07:21 -0700 -  Code reduction <opussf>
-* 9f0b36c 2022-09-03 14:20:31 -0700 -  Merge branch 'develop' into expandedOptions <opussf>
-* cd299e9 2022-08-31 18:11:19 -0700 -  New message <opussf>
+* 1f66fed 2022-10-26 18:12:19 -0700 -  (HEAD -> master, tag: 0.22.2, origin/master) 100000 Update <opussf>

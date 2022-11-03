@@ -15,16 +15,16 @@ INEED_options = {
 }
 
 function INEED.OptionsPanel_OnLoad(panel)
-	panel.name = "INeed";
-	INEEDOptionsFrame_Title:SetText(INEED_MSG_ADDONNAME.." "..INEED_MSG_VERSION);
+	panel.name = "INeed"
+	INEEDOptionsFrame_Title:SetText(INEED_MSG_ADDONNAME.." "..INEED_MSG_VERSION)
 	--panel.parent=""
-	panel.okay = INEED.OptionsPanel_OKAY;
-	panel.cancel = INEED.OptionsPanel_Cancel;
+	panel.okay = INEED.OptionsPanel_OKAY
+	panel.cancel = INEED.OptionsPanel_Cancel
 	--panel.default = FB.OptionsPanel_Default;
-	panel.refresh = INEED.OptionsPanel_Refresh;
+	panel.refresh = INEED.OptionsPanel_Refresh
 
-	InterfaceOptions_AddCategory(panel);
-	InterfaceAddOnsList_Update();
+	InterfaceOptions_AddCategory(panel)
+	--InterfaceAddOnsList_Update();
 	--FB.OptionsPanel_TrackPeriodSlider_OnLoad()
 end
 function INEED.OptionsPanel_Reset()

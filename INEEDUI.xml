@@ -20,7 +20,7 @@
 		<Layers>
 			<Layer level="ARTWORK">
 				<!-- Frame Title -->
-				<FontString name="$parent_TitleText" frameStrata="ARTWORK" inherits="GameFontHighlight" text="INeed">
+				<FontString name="$parent_TitleText" inherits="GameFontHighlight" text="INeed">
 					<Size>
 						<AbsDimension x="250" y="14"/>
 					</Size>

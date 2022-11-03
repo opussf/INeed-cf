@@ -23,7 +23,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 		<Anchors>
 			<Anchor point="CENTER" />
 		</Anchors>
-		<FontString name="$parentFontString" inherits="NumberFont_Outline_Huge" wraponspaces="true">
+		<FontString name="$parentFontString" inherits="NumberFont_Outline_Huge">
 			<Color r="1" g="1" b="1" />
 		</FontString>
 		<Layers>
