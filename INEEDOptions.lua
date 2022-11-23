@@ -35,6 +35,7 @@ function INEED.OptionsPanel_OKAY()
 	-- Data was recorded, clear the temp
 	INEED.oldValues = nil
 	INEED_account["max"] = MoneyInputFrame_GetCopper(INEEDOptionsFrame_Money_AccountMax)
+	if INEED_account["max"] == 0 then INEED_account["max"] = nil end
 	INEED_account["balance"] = MoneyInputFrame_GetCopper(INEEDOptionsFrame_Money_AccountCurrent)
 	INEED.updateTitleText()
 end
