@@ -1,3 +1,5 @@
-Changes since 1.0..
+Changes since 1.1..
 
-* 0213930 2023-01-29 23:44:24 -0800 -  (HEAD -> master, tag: 1.0, origin/master) 10.0.5 <opussf>
+* 064a9b3 2023-10-27 13:25:00 -0700 -  (HEAD -> master, tag: 1.1, origin/master) Merge branch 'develop' <opussf>
+* 5a2fb77 2023-10-27 13:24:28 -0700 -  (origin/develop, develop) Merge branch 'feature/reset' into develop <opussf>
+* 42b4023 2023-10-27 13:23:21 -0700 -  Allow the user to reset the position (and size) of the UI List. <opussf>

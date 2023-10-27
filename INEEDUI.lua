@@ -236,3 +236,12 @@ end
 function INEED.UIListOnDragStop()
 	INEEDUIListFrame:StopMovingOrSizing()
 end
+function INEED.UIReset()
+	INEEDUIListFrame:SetSize( 250, 12 )
+	INEEDUIListFrame:ClearAllPoints()
+	INEEDUIListFrame:SetPoint("CENTER", "$parent", "CENTER")
+end
+INEED.CommandList["reset"] = {
+	["func"] = INEED.UIReset,
+	["help"] = {"", "Reset the position of the UI"},
+}
