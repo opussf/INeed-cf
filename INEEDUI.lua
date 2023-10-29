@@ -46,7 +46,7 @@ end
 
 -- List display functions
 function INEED.UIListOnLoad()
-	INEED.Print("Loading UI - List")
+	-- INEED.Print("Loading UI - List")
 	INEEDUIListFrame:Hide()
 end
 function INEED.UIListOnUpdate()
