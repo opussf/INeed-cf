@@ -119,9 +119,11 @@ function INEED.MAIL_SEND_INFO_UPDATE()
 		if link then
 			local itemID = INEED.getItemIdFromLink( link )
 			local quantity = select( 4, GetSendMailItem( slot ) )
-			INEED.mailInfo.items[itemID] = (INEED.mailInfo.items[itemID] and
-					(INEED.mailInfo.items[itemID] + quantity) or
-					quantity)
+			if itemID then
+				INEED.mailInfo.items[itemID] = (INEED.mailInfo.items[itemID] and
+						(INEED.mailInfo.items[itemID] + quantity) or
+						quantity)
+			end
 		end
 	end
 end
