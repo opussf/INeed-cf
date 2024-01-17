@@ -55,6 +55,7 @@ function INEED.OnLoad()
 	INEED_Frame:RegisterEvent("ADDON_LOADED")
 	INEED_Frame:RegisterEvent("BAG_UPDATE")
 	INEED_Frame:RegisterEvent("MERCHANT_SHOW")
+	INEED_Frame:RegisterEvent("MERCHANT_CLOSED")
 	INEED_Frame:RegisterEvent("MAIL_SHOW")
 	INEED_Frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 	INEED_Frame:RegisterEvent("CURRENCY_DISPLAY_UPDATE")
@@ -372,6 +373,7 @@ end
 function INEED.MERCHANT_SHOW()
 	-- Event handler.  Autopurchase
 	--local numItems = GetMerchantNumItems()
+	INEED.isMerchantOpen = true
 	local purchaseAmount = 0
 	local msgSent = false
 	for i = 0, GetMerchantNumItems() do  -- Go through the items for sale
@@ -455,6 +457,9 @@ function INEED.MERCHANT_SHOW()
 	name, texture, price, quantity, numAvailable, isUsable, extendedCost = GetMerchantItemInfo(index)
 	BuyMerchantItem(index {, quantity});
 	]]--
+end
+function INEED.MERCHANT_CLOSED()
+	INEED.isMerchantOpen = nil
 end
 function INEED.PLAYER_MONEY()
 	-- PLAYER_MONEY has changed
@@ -720,6 +725,9 @@ function INEED.addItem( itemLink, quantity )
 				INEED_data[itemID][INEED.realm][INEED.name] = nil
 				INEED.clearData()
 			end
+		end
+		if INEED.isMerchantOpen then
+			INEED.MERCHANT_SHOW()  -- Allow a newly added item to trigger a purchase with
 		end
 		return itemLink   -- return early
 	end
