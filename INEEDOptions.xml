@@ -94,14 +94,6 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<!--
-				<FontString name="$parent_ShowBarsHeader" inherits="GameFontNormal" text="Show">
-					<Anchors>
-						<Anchor point="LEFT" relativeTo="$parent_SuccessActionsHeader" relativePoint="LEFT"/>
-						<Anchor point="TOP" relativeTo="$parent_UIHeader" relativePoint="BOTTOM"/>
-					</Anchors>
-				</FontString>
-			-->
 			</Layer>
 		</Layers>
 		<Frames>
