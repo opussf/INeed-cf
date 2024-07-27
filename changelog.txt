@@ -1,9 +1,6 @@
-Changes since 1.5..
+Changes since 1.5.1..
 
-* dfa8396 2024-06-08 12:49:26 -0700 -  (HEAD -> master, tag: 1.5, origin/master, develop) Merge branch 'develop' <opussf>
-*   5119077 2024-06-08 12:49:06 -0700 -  Merge branch 'feature/noFaction' into develop <opussf>
-|\  
-| * 04ba25f 2024-06-08 12:45:29 -0700 -  No faction checking <opussf>
-* | fabc18c 2024-06-08 12:48:37 -0700 -  Merge branch 'master' into develop <opussf>
-|/  
-* 5865a68 2024-04-25 17:17:43 -0700 -  Test Stubs update <opussf>
+* 0d316c3 2024-07-26 17:33:58 -0700 -  (HEAD -> master, tag: 1.5.1) Merge branch 'develop' <opussf>
+* de8599b 2024-07-26 17:32:16 -0700 -  (develop) Merge branch '110000' into develop <opussf>
+* 0e97dd5 2024-07-26 17:29:01 -0700 -  (110000) 110000 Options update.  Remove AutoRepair until it can be fixed. <opussf>
+* 7b4d56c 2024-07-25 13:19:36 -0700 -  110000 changes for GetCoinTextureString <opussf>

@@ -9,23 +9,24 @@ INEED_options = {
 	["hideInCombat"] = true,
 	["displayUIList"] = true,
 	["displayUIListDisplaySeconds"] = 300, -- 5 minute default
-	["autoRepair"] = true,
+	["autoRepair"] = false,
 	["fillBars"] = true,
 	["displayUIListFillbarsSeconds"] = 300, -- show filled bars for another 5 minutes
 }
 
 function INEED.OptionsPanel_OnLoad(panel)
 	panel.name = "INeed"
-	INEEDOptionsFrame_Title:SetText(INEED_MSG_ADDONNAME.." "..INEED_MSG_VERSION)
-	--panel.parent=""
-	panel.okay = INEED.OptionsPanel_OKAY
-	panel.cancel = INEED.OptionsPanel_Cancel
-	--panel.default = FB.OptionsPanel_Default;
-	panel.refresh = INEED.OptionsPanel_Refresh
+	INEEDOptionsFrame_Title:SetText(INEED_MSG_ADDONNAME.." v"..INEED_MSG_VERSION)
 
-	InterfaceOptions_AddCategory(panel)
-	--InterfaceAddOnsList_Update();
-	--FB.OptionsPanel_TrackPeriodSlider_OnLoad()
+	panel.OnCommit = INEED.OptionsPanel_OKAY
+	panel.OnDefault = function() end
+	panel.OnRefresh = INEED.OptionsPanel_Refresh
+
+	-- Register Options frame
+	local category, layout = Settings.RegisterCanvasLayoutCategory( panel, panel.name )
+	panel.category = category
+	Settings.RegisterAddOnCategory(category)
+	INEED_options.autoRepair = false
 end
 function INEED.OptionsPanel_Reset()
 	-- Called from Addon_Loaded
@@ -66,8 +67,7 @@ function INEED.OptionsPanel_Refresh()
 	INEEDOptionsFrame_CombatHide:SetChecked(INEED_options["combatHide"])
 	INEED.OptionsPanel_EditBox_OnLoad( INEEDOptionsFrame_DisplayBarCount, "barCount" )
 	INEEDOptionsFrame_FillOldest:SetChecked(INEED_options["fillBars"])
-
-	INEEDOptionsFrame_AutoRepair:SetChecked(INEED_options["autoRepair"])
+	-- INEEDOptionsFrame_AutoRepair:SetChecked(INEED_options["autoRepair"])
 
 	-- Slush
 	INEED.OptionsPanel_Account_EditBox_OnShow( INEEDOptionsFrame_AccountPercent, "percent" )

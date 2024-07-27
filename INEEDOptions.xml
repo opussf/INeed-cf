@@ -475,6 +475,7 @@
 				</Layers>
 			</EditBox>
 
+			<!--   Remove for now
 			<CheckButton name="$parent_AutoRepair" inherits="INEEDOptionsCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_UseAccountForHeader" relativePoint="BOTTOMLEFT"/>
@@ -485,6 +486,7 @@
 					<OnClick>INEED.OptionsPanel_CheckButton_OnClick(self,"autoRepair")</OnClick>
 				</Scripts>
 			</CheckButton>
+			-->
 
 			<EditBox name="$parent_AccountPercent" inherits="InputBoxTemplate" letters="5" autoFocus="false">
 				<Size x="44" y="16"/>
