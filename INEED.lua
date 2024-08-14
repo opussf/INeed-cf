@@ -1,19 +1,19 @@
-INEED_SLUG, INEED = ...
-INEED_MSG_ADDONNAME = GetAddOnMetadata( INEED_SLUG, "Title" )
-INEED_MSG_VERSION   = GetAddOnMetadata( INEED_SLUG, "Version" )
-INEED_MSG_AUTHOR    = GetAddOnMetadata( INEED_SLUG, "Author" )
+INEED_SLUG, INEED   = ...
+INEED_MSG_ADDONNAME = C_AddOns.GetAddOnMetadata( INEED_SLUG, "Title" )
+INEED_MSG_VERSION   = C_AddOns.GetAddOnMetadata( INEED_SLUG, "Version" )
+INEED_MSG_AUTHOR    = C_AddOns.GetAddOnMetadata( INEED_SLUG, "Author" )
 
 -- Colours
-COLOR_RED = "|cffff0000";
-COLOR_GREEN = "|cff00ff00";
-COLOR_BLUE = "|cff0000ff";
-COLOR_PURPLE = "|cff700090";
-COLOR_YELLOW = "|cffffff00";
-COLOR_ORANGE = "|cffff6d00";
-COLOR_GREY = "|cff808080";
-COLOR_GOLD = "|cffcfb52b";
-COLOR_NEON_BLUE = "|cff4d4dff";
-COLOR_END = "|r";
+COLOR_RED = "|cffff0000"
+COLOR_GREEN = "|cff00ff00"
+COLOR_BLUE = "|cff0000ff"
+COLOR_PURPLE = "|cff700090"
+COLOR_YELLOW = "|cffffff00"
+COLOR_ORANGE = "|cffff6d00"
+COLOR_GREY = "|cff808080"
+COLOR_GOLD = "|cffcfb52b"
+COLOR_NEON_BLUE = "|cff4d4dff"
+COLOR_END = "|r"
 
 INEED_data = {}
 INEED_currency = {}
@@ -238,7 +238,6 @@ end
 function INEED.PLAYER_ENTERING_WORLD() -- Variables should be loaded here
 	--INEED_Frame:RegisterEvent("UNIT_INVENTORY_CHANGED")
 	INEED_Frame:UnregisterEvent("PLAYER_ENTERING_WORLD")
-	INEED_options.autoRepair = false
 	-- Build data structure to track what other players need.
 	INEED.makeOthersNeed()
 
@@ -247,7 +246,7 @@ end
 function INEED.BAG_UPDATE()
 	local itemFulfilled = false   -- has an item been fulfilled yet?
 	for itemID, _ in pairs(INEED_data) do  -- loop over the stored data structure
-		local iHaveNum = GetItemCount( itemID, true ) -- include bank
+		local iHaveNum = GetItemCount( itemID, true, nil, true ) -- include bank
 		local _, itemLink = GetItemInfo( itemID )
 		if itemLink and INEED_data[itemID][INEED.realm] and INEED_data[itemID][INEED.realm][INEED.name] then
 			INEED_data[itemID][INEED.realm][INEED.name].faction = INEED.faction -- force update incase faction is changed
@@ -439,6 +438,7 @@ function INEED.MERCHANT_SHOW()
 		repairAllCost, canRepair = GetRepairAllCost()
 		if( repairAllCost > 0 ) then  -- need to repair
 			RepairAllItems( true ) -- True to use guild repairAllCost
+			INEED.Print( "Guild Repair Items: "..C_CurrencyInfo.GetCoinTextureString( repairAllCost ) )
 		end
 		repairAllCost, canRepair = GetRepairAllCost()
 		if( INEED_account.balance and  repairAllCost > 0 and repairAllCost <= INEED_account.balance ) then
@@ -546,7 +546,7 @@ function INEED.makeOthersNeed()
 	--INEED.Print("-=-=-=-=-  makeOthersNeed  -=-=-=-=-=-")
 	INEED.othersNeed = { }
 	for itemID, _ in pairs(INEED_data) do  -- loop over the stored data structure
-		local iHaveNum = GetItemCount( itemID, true ) or 0 -- include bank
+		local iHaveNum = GetItemCount( itemID, true, nil, true ) or 0 -- include bank
 		INEED.othersNeed[itemID] = {}
 		for realm, _ in pairs( INEED_data[itemID] ) do
 			INEED.othersNeed[itemID][realm] = {}
@@ -703,13 +703,14 @@ function INEED.addItem( itemLink, quantity )
 	quantity = quantity or 1
 	local itemID = INEED.getItemIdFromLink( itemLink )
 	if itemID and string.len( itemID ) > 0 then
-		local youHave =  GetItemCount( itemID, true ) -- include bank
+		local youHave =  GetItemCount( itemID, true, nil, true ) -- include bank
 		local inBags = GetItemCount( itemID, false ) -- only in bags
+		local inAccount = C_Item.GetItemCount( itemID, false, false, false, true ) - inBags
 		if quantity > 0 then
 			local linkString = select( 2, GetItemInfo( itemID ) ) or "item:"..itemID
 			if quantity > youHave then
-				INEED.Print( string.format( "Needing: %i/%i %s (item:%s Bags: %i Bank: %i)",
-						youHave, quantity, linkString, itemID, inBags, youHave-inBags ) )
+				INEED.Print( string.format( "Needing: %i/%i %s (item:%s Bags: %i Bank: %i WB: %i)",
+						youHave, quantity, linkString, itemID, inBags, youHave-inBags, inAccount ), false )
 				INEED_data[itemID] = INEED_data[itemID] or {}
 				INEED_data[itemID][INEED.realm] = INEED_data[itemID][INEED.realm] or {}
 				INEED_data[itemID][INEED.realm][INEED.name] = INEED_data[itemID][INEED.realm][INEED.name] or {}
@@ -717,8 +718,8 @@ function INEED.addItem( itemLink, quantity )
 				INEED_data[itemID][INEED.realm][INEED.name] = INEED.addItemToTable( INEED_data[itemID][INEED.realm][INEED.name],
 						quantity, youHave, true, linkString )
 			else
-				INEED.Print( string.format( COLOR_RED.."-------"..COLOR_END..": %i/%i %s (item:%s Bags: %i Bank: %i)",
-						youHave, quantity, linkString, itemID, inBags, youHave-inBags ) )
+				INEED.Print( string.format( COLOR_RED.."-------"..COLOR_END..": %i/%i %s (item:%s Bags: %i Bank: %i WB: %i)",
+						youHave, quantity, linkString, itemID, inBags, youHave-inBags, inAccount ), false )
 			end
 		elseif quantity == 0 then
 			if INEED_data[itemID] and
@@ -775,7 +776,7 @@ function INEED.addItem( itemLink, quantity )
 		if quantity > 0 then
 			if quantity > iHaveNum then
 				INEED.Print( string.format( "Needing: %i/%i %s (currency:%s)",
-						iHaveNum, quantity, currencyLink, currencyID ) )
+						iHaveNum, quantity, currencyLink, currencyID ), false )
 				INEED_currency[currencyID] = INEED_currency[currencyID] or {}
 
 				INEED_currency[currencyID] = INEED.addItemToTable( INEED_currency[currencyID], quantity, iHaveNum, false)
@@ -784,7 +785,7 @@ function INEED.addItem( itemLink, quantity )
 			else
 				--local currencyLink = GetCurrencyLink( currencyID )
 				INEED.Print( string.format( COLOR_RED.."-------"..COLOR_END..": %s %i / %i",
-						currencyLink, iHaveNum, quantity ) )
+						currencyLink, iHaveNum, quantity ), false )
 
 			end
 		elseif quantity == 0 then
@@ -804,7 +805,7 @@ function INEED.addItem( itemLink, quantity )
 		--print("Need gold amount: "..(needGoldAmount or "nil") )
 		if curAmount < needGoldAmount then
 			INEED.Print( string.format( "Needing: %s/%s",
-					C_CurrencyInfo.GetCoinTextureString(curAmount), C_CurrencyInfo.GetCoinTextureString(needGoldAmount) ) )
+					C_CurrencyInfo.GetCoinTextureString(curAmount), C_CurrencyInfo.GetCoinTextureString(needGoldAmount) ), false )
 			INEED_gold[INEED.realm] = INEED_gold[INEED.realm] or {}
 			INEED_gold[INEED.realm][INEED.name] = INEED_gold[INEED.realm][INEED.name] or {}
 			INEED_gold[INEED.realm][INEED.name] = INEED.addItemToTable( INEED_gold[INEED.realm][INEED.name], needGoldAmount, curAmount )
@@ -983,7 +984,7 @@ function INEED.showFulfillList()
 						isSoulBound = INEED.itemIsSoulbound( itemLink )
 						--INEED.Print( "Looking at "..itemLink..". Which is "..( INEED.itemIsSoulbound( itemLink ) and "soulbound" or "not soulbound" ) )
 						if not isSoulBound then
-							local youHaveNum = GetItemCount( itemID, true )
+							local youHaveNum = GetItemCount( itemID, true, nil, true )
 							local neededValue = data.needed - data.total - ( data.inMail or 0 )
 							if (youHaveNum > 0) and (neededValue > 0) then
 								youHaveTotal = youHaveTotal and youHaveTotal + youHaveNum or youHaveNum
@@ -1124,7 +1125,7 @@ function INEED.slush( strIn )
 			(INEED_account.max and (" max: "..C_CurrencyInfo.GetCoinTextureString(INEED_account.max)) or "") )
 end
 function INEED.updateTitleText( )
-	local accountBalanceStr = INEED_account.balance and C_CurrencyInfo.GetCoinTextureString( INEED_account.balance )
+	local accountBalanceStr = (INEED_account.balance and INEED_account.balance > 0) and C_CurrencyInfo.GetCoinTextureString( INEED_account.balance )
 	INEED.UITitleText = "INEED"..( accountBalanceStr and " - "..accountBalanceStr or "" )
 	INEEDUIListFrame_TitleText:SetText( INEED.UITitleText )
 end

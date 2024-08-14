@@ -67,7 +67,7 @@ function INEED.OptionsPanel_Refresh()
 	INEEDOptionsFrame_CombatHide:SetChecked(INEED_options["combatHide"])
 	INEED.OptionsPanel_EditBox_OnLoad( INEEDOptionsFrame_DisplayBarCount, "barCount" )
 	INEEDOptionsFrame_FillOldest:SetChecked(INEED_options["fillBars"])
-	-- INEEDOptionsFrame_AutoRepair:SetChecked(INEED_options["autoRepair"])
+	INEEDOptionsFrame_AutoRepair:SetChecked(INEED_options["autoRepair"])
 
 	-- Slush
 	INEED.OptionsPanel_Account_EditBox_OnShow( INEEDOptionsFrame_AccountPercent, "percent" )
