@@ -137,8 +137,8 @@ function INEED.UIListOnUpdate()
 	-- process othersNeed
 	if INEED.othersNeed then
 		for itemID in pairs( INEED.othersNeed ) do
-			if INEED.othersNeed[itemID][INEED.realm] and INEED.othersNeed[itemID][INEED.realm][INEED.faction] then
-				updatedTS = INEED.othersNeed[itemID][INEED.realm][INEED.faction].updated or nil
+			if INEED.othersNeed[itemID] then
+				updatedTS = INEED.othersNeed[itemID].updated or nil
 				--print( "--> item:"..itemID.." for "..INEED.realm.." and "..INEED.faction.." :"..
 				--		(INEED.othersNeed[itemID][INEED.realm][INEED.faction].updated or "noUpdate") )
 			end
@@ -155,9 +155,8 @@ function INEED.UIListOnUpdate()
 							{["updated"] = updatedTS,
 							 ["itemPre"] = "item:",
 							 ["id"] = itemID,
-							 ["total"] =  (INEED.othersNeed[itemID][INEED.realm][INEED.faction].mine or 0) +
-							 		(INEED.othersNeed[itemID][INEED.realm][INEED.faction].total or 0),
-							 ["needed"] =  INEED.othersNeed[itemID][INEED.realm][INEED.faction].needed,
+							 ["total"] =  (INEED.othersNeed[itemID].mine or 0) + (INEED.othersNeed[itemID].total or 0),
+							 ["needed"] =  INEED.othersNeed[itemID].needed,
 							 ["linkStr"] = "-->"..( select( 2, GetItemInfo( itemID ) ) or "item:"..itemID ).."<--"
 					})
 					count = count + 1

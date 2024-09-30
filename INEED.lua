@@ -56,7 +56,7 @@ function INEED.OnLoad()
 	INEED_Frame:RegisterEvent("BAG_UPDATE")
 	INEED_Frame:RegisterEvent("MERCHANT_SHOW")
 	INEED_Frame:RegisterEvent("MERCHANT_CLOSED")
-	INEED_Frame:RegisterEvent("MAIL_SHOW")
+	--INEED_Frame:RegisterEvent("MAIL_SHOW")
 	INEED_Frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 	INEED_Frame:RegisterEvent("CURRENCY_DISPLAY_UPDATE")
 	-- Mail Events
@@ -74,6 +74,7 @@ function INEED.OnLoad()
 	-- Hide display
 	INEED_Frame:RegisterEvent("PLAYER_REGEN_ENABLED")
 	INEED_Frame:RegisterEvent("PLAYER_REGEN_DISABLED")
+	INEED_Frame:RegisterEvent("PLAYER_INTERACTION_MANAGER_FRAME_SHOW")
 end
 function INEED.TRADE_SKILL_SHOW()
 	--INEED.Print("TradeSkill window opened.")
@@ -128,23 +129,6 @@ function INEED.MAIL_SEND_INFO_UPDATE()
 		end
 	end
 end
---[[  This code could be used to populate out going emails
-	for i in pairs( INEED_data ) do
-		--INEED.Print("item:"..i.." for "..(INEED.mailInfo.mailTo or 'nil').."-"..INEED.realm)
-		if INEED_data[i][INEED.realm] and INEED_data[i][INEED.realm][INEED.mailInfo.mailTo] then  -- has record
-			local theirRecord = INEED_data[i][INEED.realm][INEED.mailInfo.mailTo]
-			local theyHave = (theirRecord.inMail or 0) + theirRecord.total
-			INEED.Print( "   They have: "..theyHave )
-			if (theirRecord.needed > theyHave) -- still need
-					and (theirRecord.faction == INEED.faction) -- same faction
-					and (GetItemCount( i, false ) > 0) then -- you have in bags
-				INEED.Print( "   I have: "..GetItemCount( i, false ))
-				INEED.Print( "I would use "..select( 2, GetItemInfo( i ) ) )
-			end
-		end
-	end
-end
-]]
 function INEED.MAIL_SEND_SUCCESS()
 	--INEED.Print("Send mail SUCCESS")
 	if INEED.mailInfo then
@@ -207,7 +191,6 @@ function INEED.ADDON_LOADED( _, arg1 )
 		INEED.name = UnitName("player")
 		INEED.realm = GetRealmName()
 		INEED.faction = UnitFactionGroup("player")
-		INEED.faction = "BOTH"
 
 		-- Setup game settings
 		--GameTooltip:HookScript("OnTooltipSetItem", INEED.hookSetItem)
@@ -249,7 +232,8 @@ function INEED.BAG_UPDATE()
 		local iHaveNum = GetItemCount( itemID, true, nil, true ) -- include bank
 		local _, itemLink = GetItemInfo( itemID )
 		if itemLink and INEED_data[itemID][INEED.realm] and INEED_data[itemID][INEED.realm][INEED.name] then
-			INEED_data[itemID][INEED.realm][INEED.name].faction = INEED.faction -- force update incase faction is changed
+			INEED_data[itemID][INEED.realm][INEED.name].faction = INEED.faction -- force update incase faction has changed
+			INEED_data[itemID][INEED.realm][INEED.name].link = itemLink  -- update link
 			--INEED.("I have a record for item "..itemLink)
 			local gained = iHaveNum - INEED_data[itemID][INEED.realm][INEED.name].total
 			if INEED_data[itemID][INEED.realm][INEED.name].total ~= iHaveNum then
@@ -291,21 +275,19 @@ function INEED.BAG_UPDATE()
 				itemFulfilled = true
 			end
 		elseif itemLink and INEED.othersNeed
-						and INEED.othersNeed[itemID]
-						and INEED.othersNeed[itemID][INEED.realm]
-						and INEED.othersNeed[itemID][INEED.realm][INEED.faction] then
+						and INEED.othersNeed[itemID] then
 			-- valid item, and it is needed by someone (if it got here, it is not needed by current player - anymore )
 
-			local gained = iHaveNum - INEED.othersNeed[itemID][INEED.realm][INEED.faction].mine
+			local gained = iHaveNum - INEED.othersNeed[itemID].mine
 			if gained ~= 0 then
-				INEED.othersNeed[itemID][INEED.realm][INEED.faction].mine = iHaveNum
-				INEED.othersNeed[itemID][INEED.realm][INEED.faction].updated = time()
+				INEED.othersNeed[itemID].mine = iHaveNum
+				INEED.othersNeed[itemID].updated = time()
 				if INEED_options.showGlobal or INEED_options.printProgress then
 					local progressString = string.format("-=%i/%i %s%s=-",
-							(INEED.othersNeed[itemID][INEED.realm][INEED.faction].total
-								+ (INEED.othersNeed[itemID][INEED.realm][INEED.faction].inMail and INEED.othersNeed[itemID][INEED.realm][INEED.faction].inMail or 0)
+							(INEED.othersNeed[itemID].total
+								+ (INEED.othersNeed[itemID].inMail and INEED.othersNeed[itemID].inMail or 0)
 								+ iHaveNum),
-							INEED.othersNeed[itemID][INEED.realm][INEED.faction].needed,
+							INEED.othersNeed[itemID].needed,
 							(INEED_options.includeChange
 								and string.format("(%s%+i%s) ", ((gained > 0) and COLOR_GREEN or COLOR_RED), gained, COLOR_END)
 								or ""),
@@ -434,20 +416,6 @@ function INEED.MERCHANT_SHOW()
 			end
 		end
 	end
-	if( INEED_options.autoRepair ) then
-		repairAllCost, canRepair = GetRepairAllCost()
-		if( repairAllCost > 0 ) then  -- need to repair
-			RepairAllItems( true ) -- True to use guild repairAllCost
-			INEED.Print( "Guild Repair Items: "..C_CurrencyInfo.GetCoinTextureString( repairAllCost ) )
-		end
-		repairAllCost, canRepair = GetRepairAllCost()
-		if( INEED_account.balance and  repairAllCost > 0 and repairAllCost <= INEED_account.balance ) then
-			RepairAllItems()
-			INEED_account.balance = INEED_account.balance - repairAllCost
-			purchaseAmount = purchaseAmount + repairAllCost
-			INEED.Print( "Repair Items: "..C_CurrencyInfo.GetCoinTextureString( repairAllCost ) )
-		end
-	end
 	if purchaseAmount > 0 then
 		INEED.Print("==========================")
 		INEED.Print("Total:   "..C_CurrencyInfo.GetCoinTextureString(purchaseAmount) )
@@ -535,6 +503,34 @@ function INEED.PLAYER_REGEN_ENABLED()
 	INEED.hide = nil
 	INEEDUIListFrame:Show()
 end
+function INEED.PLAYER_INTERACTION_MANAGER_FRAME_SHOW(...)
+	-- 1 is table, 2 is Enum.PlayerInteractionType (https://wowpedia.fandom.com/wiki/PLAYER_INTERACTION_MANAGER_FRAME_SHOW)
+	-- can ignore, and just look for the buttons being enabled.
+
+	-- try to guild repair first  -- set as an option later?
+	if( INEED_options.autoRepair ) then
+		repairAllCost, canRepair = GetRepairAllCost()
+		-- print( repairAllCost, canRepair )
+		if canRepair then
+			if CanGuildBankRepair() then  -- also CanMerchantRepair()
+				-- print( "can repair, and can guild repair." )
+				if MerchantGuildBankRepairButton:IsEnabled() then
+					-- print( "Guild repair button is enabled." )
+					RepairAllItems( true ) -- True to use guild repairAllCost
+					INEED.Print( "Guild Repair Items: "..C_CurrencyInfo.GetCoinTextureString( repairAllCost ) )
+				end
+			end
+			repairAllCost, canRepair = GetRepairAllCost() -- get it again, incase guild is cheap, or you have exceeded your costs
+
+			if( MerchantRepairAllButton:IsEnabled() and INEED_account.balance and repairAllCost > 0 and repairAllCost <= INEED_account.balance ) then
+				RepairAllItems()  -- use own money
+				INEED_account.balance = INEED_account.balance - repairAllCost
+				--purchaseAmount = purchaseAmount + repairAllCost
+				INEED.Print( "Repair Items: "..C_CurrencyInfo.GetCoinTextureString( repairAllCost ) )
+			end
+		end
+	end
+end
 function INEED.OnUpdate()
 end
 -----------------------------------------
@@ -547,19 +543,13 @@ function INEED.makeOthersNeed()
 	INEED.othersNeed = { }
 	for itemID, _ in pairs(INEED_data) do  -- loop over the stored data structure
 		local iHaveNum = GetItemCount( itemID, true, nil, true ) or 0 -- include bank
-		INEED.othersNeed[itemID] = {}
+		INEED.othersNeed[itemID] = { ['needed'] = 0, ['total'] = 0, ['mine'] = iHaveNum }
 		for realm, _ in pairs( INEED_data[itemID] ) do
-			INEED.othersNeed[itemID][realm] = {}
 			for name, data in pairs( INEED_data[itemID][realm] ) do
 				--local faction = INEED_data[itemID][realm][name].faction or ""
-				if data.faction and not ((realm == INEED.realm) and (name == INEED.name)) then
-					INEED.othersNeed[itemID][realm][data.faction] =
-							(INEED.othersNeed[itemID][realm][data.faction] and INEED.othersNeed[itemID][realm][data.faction]
-							or { ['needed'] = 0, ['total'] = 0, ['mine'] = iHaveNum })
-					INEED.othersNeed[itemID][realm][data.faction].needed =
-							INEED.othersNeed[itemID][realm][data.faction].needed + data.needed
-					INEED.othersNeed[itemID][realm][data.faction].total =
-							INEED.othersNeed[itemID][realm][data.faction].total + data.total + (data.inMail and data.inMail or 0)
+				if not (realm == INEED.realm and name == INEED.name) then
+					INEED.othersNeed[itemID].needed = INEED.othersNeed[itemID].needed + data.needed
+					INEED.othersNeed[itemID].total  = INEED.othersNeed[itemID].total + data.total + (data.inMail and data.inMail or 0)
 				end
 			end
 		end
@@ -622,43 +612,20 @@ end
 -- https://github.com/Ketho/wow-ui-source-df/blob/e6d3542fc217592e6144f5934bf22c5d599c1f6c/Interface/SharedXML/Tooltip/TooltipDataHandler.lua
 -- https://github.com/Ketho/wow-ui-source-df/blob/e6d3542fc217592e6144f5934bf22c5d599c1f6c/Interface/SharedXML/Tooltip/TooltipDataHandler.lua#L324
 function INEED.onTooltipSetItem(tooltip, tooltipdata)  -- is passed the tooltip frame as a table
-	-- INEED.lineData = {
-	-- 	["leftText"] = tooltipdata.id
-	-- }
-	-- tooltip:AddLineDataText(INEED.lineData)
 	itemID = tostring(tooltipdata.id)
 
 	if itemID and INEED_data[itemID] then
 		for realm in pairs(INEED_data[itemID]) do
-			if realm == INEED.realm then
-				for name, data in pairs(INEED_data[itemID][realm]) do
-					INEED.lineData = {
-						["leftText"] = name,
-						["rightText"] = string.format("Needs: %i / %i", data.total + (data.inMail or 0), data.needed)
-					}
-					tooltip:AddLineDataText(INEED.lineData)
-				end
+			for name, data in pairs(INEED_data[itemID][realm]) do
+				INEED.lineData = {
+					["leftText"] = name..(realm ~= INEED.realm and "-"..realm or ""),
+					["rightText"] = string.format("Needs: %i / %i", data.total + (data.inMail or 0), data.needed)
+				}
+				tooltip:AddLineDataText(INEED.lineData)
 			end
 		end
 	end
 end
---[[ Figure out how to do this later.
-function INEED.hookSetCurrencyToken(tooltip, index, ...)
-	INEED.Orig_GameTooltip_SetCurrencyToken( tooltip, index, ... )
-	if not index then return end
-	local currency, _, _, _, _, ec, _, _, currencyID = GetCurrencyListInfo( index )
-	local a,        b, c, d, e, f,  g, h, i = GetCurrencyListInfo( index )
-	INEED.Print("a:"..a)
-	INEED.Print("b:"..(b and "true" or "false"))
-	INEED.Print("c:"..(c and "true" or "false"))
-	INEED.Print("d:"..(d and "true" or "false"))
-	INEED.Print("e:"..(e and "true" or "false"))
-	INEED.Print("f:"..f)
-	INEED.Print("g:"..g)
-	INEED.Print("h:"..h)
-	INEED.Print("i:"..(i or "nil"))
-end
-]]--
 function INEED.addItemToTable( tableIn, needed, total, includeFaction, link )
 	-- given a table, make sure that the 'normal' structure exists.
 	-- needed: how many are needed (required )
@@ -844,35 +811,35 @@ function INEED.getItemIdFromLink( itemLink )
 	-- returns just the integer itemID
 	-- itemLink can be a full link, or just "item:999999999"
 	if itemLink then
-		return strmatch( itemLink, "item:(%d*)" )
+		return strmatch( itemLink, "item:(%d*)" ) or strmatch( itemLink, "i:(%d*)" )
 	end
 end
 function INEED.getEnchantIdFromLink( enchantLink )
 	-- returns just the integer enchantID
 	-- enchantLink can be a full link, or just "enchant:999999999"
 	if enchantLink then
-		return strmatch( enchantLink, "enchant:(%d*)" )
+		return strmatch( enchantLink, "enchant:(%d*)" ) or strmatch( enchantLink, "e:(%d*)" )
 	end
 end
 function INEED.getCurrencyIdFromLink( currencyLink )
 	-- currency:402
 	if currencyLink then
-		return strmatch( currencyLink, "currency:(%d*)" )
+		return strmatch( currencyLink, "currency:(%d*)" ) or strmatch( currencyLink, "c:(%d*)" )
 	end
 end
 function INEED.getAchievementIdFromLink( achievementLink )
 	if achievementLink then
-		return strmatch( achievementLink, "achievement:(%d*)" )
+		return strmatch( achievementLink, "achievement:(%d*)" ) or strmatch( achievementLink, "a:(%d*)" )
 	end
 end
 function INEED.command(msg)
 	local cmd, param = INEED.parseCmd(msg);
-	--INEED.Print("cl:"..cmd.." p:"..(param or "nil") )
+	-- INEED.Print("cl:"..cmd.." p:"..(param or "nil") )
 	local cmdFunc = INEED.CommandList[cmd];
 	if cmdFunc then
 		cmdFunc.func(param);
 	elseif ( cmd and cmd ~= "") then  -- exists and not empty
-		--INEED.Print("cl:"..cmd.." p:"..(param or "nil"))
+		-- INEED.Print("cl:"..cmd.." p:"..(param or "nil"))
 		--param, targetString = INEED.parseTarget( param )
 		INEED.addItem( cmd, tonumber(param) )
 		INEED.makeOthersNeed()
