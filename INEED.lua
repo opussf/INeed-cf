@@ -618,7 +618,8 @@ function INEED.onTooltipSetItem(tooltip, tooltipdata)  -- is passed the tooltip 
 		for realm in pairs(INEED_data[itemID]) do
 			for name, data in pairs(INEED_data[itemID][realm]) do
 				INEED.lineData = {
-					["leftText"] = name..(realm ~= INEED.realm and "-"..realm or ""),
+					["leftText"] = ((name == INEED.name and realm == INEED.realm) and [[|TInterface\RaidFrame\ReadyCheck-Ready:0|t]] or "")..
+							name..(realm ~= INEED.realm and "-"..realm or ""),
 					["rightText"] = string.format("Needs: %i / %i", data.total + (data.inMail or 0), data.needed)
 				}
 				tooltip:AddLineDataText(INEED.lineData)

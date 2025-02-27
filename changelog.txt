@@ -1,9 +1,3 @@
-Changes since 1.6..
+Changes since 1.7.1..
 
-* eaa1251 2024-09-29 18:40:08 -0700 -  (HEAD -> master, tag: 1.6, origin/master) Merge branch 'develop' <opussf>
-* ee58de0 2024-09-29 18:39:34 -0700 -  (develop) Merge branch '110000' into develop <opussf>
-* 0548e79 2024-09-29 00:33:53 -0700 -  (110000) Format change <opussf>
-* 347686c 2024-09-29 00:33:01 -0700 -  Removing Realm and faction from othersneed struct.  Update link for item. <opussf>
-* b2bc572 2024-09-28 22:59:11 -0700 -  Shortcuts <opussf>
-* 2538fad 2024-09-27 12:49:03 -0700 -  Update wowStubs and a few other changes <opussf>
-* 3d191c8 2024-09-27 12:36:53 -0700 -  Debug for updates <opussf>
+* ca3cce4 2025-02-26 18:51:04 -1000 -  (HEAD -> master, tag: 1.7.1, origin/master) 110100 <opussf>
