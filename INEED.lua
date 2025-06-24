@@ -1171,7 +1171,7 @@ INEED.CommandList = {
 	},
 	["<link>"] = {
 		["func"] = INEED.PrintHelp,
-		["help"] = {"[quantity]", "Set quantity needed of <link>"},
+		["help"] = {"[quantity]", "Set quantity needed of <link> (0 to remove).\nSupports item:#, currency:#, enchant:#, or achievement:#\n(or i:#, c:#, e:#, a:#)."},
 	},
 	["options"] = {
 		["func"] = function() Settings.OpenToCategory( INEEDOptionsFrame.category:GetID() ) end,
@@ -1198,7 +1198,7 @@ INEED.CommandList = {
 	},
 	["prune"] = {
 		["func"] = INEED.prune,
-		["help"] = { "<link>", "Prune [link] from all character." },
+		["help"] = { "<link>", "Prune <link> from all characters." },
 	},
 	["oldest"] = {
 		["func"] = INEED.oldest,

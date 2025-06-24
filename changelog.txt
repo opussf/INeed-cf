@@ -1,3 +1,3 @@
-Changes since 1.7.1..
+Changes since 1.7.2..
 
-* ca3cce4 2025-02-26 18:51:04 -1000 -  (HEAD -> master, tag: 1.7.1, origin/master) 110100 <opussf>
+* a5bf6b2 2025-06-24 14:06:14 -0700 -  (HEAD -> master, tag: 1.7.2, origin/master) Better help text. <opussf>
