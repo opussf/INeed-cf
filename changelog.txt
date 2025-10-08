@@ -1,3 +1,7 @@
-Changes since 1.7.3..
+Changes since 1.8..
 
-* b381c86 2025-10-07 14:09:29 -1000 -  (HEAD -> master, tag: 1.7.3) 110205 and stubs <opussf>
+* f704e48 2025-10-07 14:31:51 -1000 -  (HEAD -> master, tag: 1.8, origin/master) Merge branch 'develop' <opussf>
+* 7ffdbb4 2025-10-07 14:31:21 -1000 -  (origin/develop, develop) Merge branch 'token' into develop <opussf>
+* deaeb18 2025-10-07 14:30:04 -1000 -  Can now need a quantity of tokens amount of gold. <opussf>
+* b80be1a 2025-10-07 14:11:11 -1000 -  Merge branch 'develop' into token <opussf>
+* 98268c3 2025-08-02 22:30:43 -0700 -  new command to add a token amount of gold. <opussf>

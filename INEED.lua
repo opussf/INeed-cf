@@ -1120,7 +1120,9 @@ function INEED.oldest()
 	INEED.highestUpdatedTS = time() + INEED_options["displayUIListFillbarsSeconds"]
 	INEEDUIListFrame:Show()
 end
-
+function INEED.token( paramIn )
+	INEED.addItem( C_WowTokenPublic.GetCurrentMarketPrice() * (tonumber(paramIn) or 1) )
+end
 -- Testing functions
 
 function INEED.test()
@@ -1207,6 +1209,10 @@ INEED.CommandList = {
 	["test"] = {
 		["func"] = INEED.test,
 		["help"] = {"","Do something helpful"},
+	},
+	["token"] = {
+		["func"] = INEED.token,
+		["help"] = {"[quantity]", "Need [quantity] token's amount of gold."},
 	},
 }
 
