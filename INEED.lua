@@ -369,7 +369,12 @@ function INEED.MERCHANT_SHOW()
 			-- texture, value, link = GetMerchantItemCostItem(index, currency)
 			local currencyCount = GetMerchantItemCostInfo( i )  -- 0 if just gold.
 
-			local itemName, _, price, quantity, _, isUsable = GetMerchantItemInfo( i )
+			local itemInfo = C_MerchantFrame.GetItemInfo( i )  -- @TODO: Refactor this to use the itemInfo table.
+			local itemName = itemInfo.name
+			local price = itemInfo.price
+			local quantity = itemInfo.stackCount
+			local isUsable = itemInfo.isUsable
+
 			local maxStackPurchase = GetMerchantItemMaxStack( i )
 			local itemT = INEED_data[itemID][INEED.realm][INEED.name]
 			local neededQuantity = itemT.needed - itemT.total
