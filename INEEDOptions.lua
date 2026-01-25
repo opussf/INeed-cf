@@ -44,7 +44,6 @@ function INEED.OptionsPanel_Cancel()
 	-- reset to temp and update the UI
 	if INEED.oldValues then
 		for key,val in pairs(INEED.oldValues) do
-			--FB.Print(key..":"..val);
 			INEED_options[key] = val;
 		end
 	end

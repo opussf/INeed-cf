@@ -563,7 +563,7 @@ end
 function INEED.itemFulfilledAnnouce()
 	if INEED_options.audibleSuccess then
 		if INEED_options.doEmote and INEED_options.emote then
-			DoEmote( INEED_options.emote )
+			C_ChatInfo.PerformEmote( INEED_options.emote )
 		end
 		if INEED_options.playSoundFile and INEED_options.soundFile then
 			PlaySoundFile( INEED_options.soundFile )
