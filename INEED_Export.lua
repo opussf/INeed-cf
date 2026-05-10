@@ -17,16 +17,16 @@ function GetFormattedDate( TS )
 end
 
 function ExportXML()
-	strOut = "<?xml version='1.0' encoding='utf-8' ?>\n"
-	strOut = strOut .. "<ineed>\n"
+	tOut = { "<?xml version='1.0' encoding='utf-8' ?>\n" }
+	tOut[#tOut+1] = "<ineed>\n"
 
 	for itemID, ineedStruct in sorted_pairs( INEED_data ) do
-		strOut = strOut .. string.format( '<item id="%s">\n', itemID )
+		tOut[#tOut+1] = string.format( '<item id="%s">\n', itemID )
 
 		for realm, realmStruct in sorted_pairs( ineedStruct ) do
 			for playerName, playerStruct in sorted_pairs( realmStruct ) do
 
-				strOut = strOut .. string.format( '\t<player realm="%s" name="%s" faction="%s" has="%s" needs="%s" added="%s" addedTS="%s" updated="%s" updatedTS="%s" />\n',
+				tOut[#tOut+1] = string.format( '\t<player realm="%s" name="%s" faction="%s" has="%s" needs="%s" added="%s" addedTS="%s" updated="%s" updatedTS="%s" />\n',
 						realm, playerName, playerStruct.faction, playerStruct.total + (playerStruct.inMail or 0), playerStruct.needed,
 						GetFormattedDate(playerStruct.added), playerStruct.added,
 						(playerStruct.updated and GetFormattedDate(playerStruct.updated) or ''), playerStruct.updated or '' )
@@ -35,14 +35,14 @@ function ExportXML()
 		end
 		itemName = string.match(itemLink, "%[(.*)%]")
 
-		strOut = strOut .. string.format( '\t<itemLink><![CDATA[%s]]></itemLink>\n', (itemLink or '') )
-		strOut = strOut .. string.format( '\t<itemName><![CDATA[%s]]></itemName>\n', (itemName or '') )
-		strOut = strOut .. "</item>\n"
+		tOut[#tOut+1] = string.format( '\t<itemLink><![CDATA[%s]]></itemLink>\n', (itemLink or '') )
+		tOut[#tOut+1] = string.format( '\t<itemName><![CDATA[%s]]></itemName>\n', (itemName or '') )
+		tOut[#tOut+1] = "</item>\n"
 	end
 
-	strOut = strOut .. "</ineed>"
-	return strOut
+	tOut[#tOut+1] = "</ineed>"
 
+	return table.concat( tOut, "")
 end
 function ExportJSON()
 	strOut = '{"INEED": [\n'

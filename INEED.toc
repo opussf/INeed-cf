@@ -1,8 +1,8 @@
 ## Title: INeed
-## Notes: List items into an "I need" list. (v1.8.5)
-## Interface: 120001
+## Notes: List items into an "I need" list. (v1.8.6)
+## Interface: 120005
 ## Author: opussf
-## Version: 1.8.5
+## Version: 1.8.6
 ## OptionalDeps: Rested
 ## Description: Creates an "I need" list to share with your alts
 ## SavedVariables: INEED_options INEED_data INEED_gold INEED_unknown
