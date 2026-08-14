@@ -210,7 +210,7 @@ function INEED.UIListOnMouseDown()
 		return
 	end
 	for i = 1, #INEED.UIList_bars do
-		if MouseIsOver( INEED.UIList_bars[i] ) then
+		if INEED.UIList_bars[i]:IsMouseOver() then
 			local barTxt = INEED.UIList_bars[i].text:GetText()
 			itemID = INEED.getItemIdFromLink( barTxt )
 			if itemID then
